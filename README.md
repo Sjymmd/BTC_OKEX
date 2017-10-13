@@ -1,2 +1,3 @@
 # QT_Collection
-LTC&amp;ETH Data collection
+LTC&ETH Data collection
+Api_okcoin
