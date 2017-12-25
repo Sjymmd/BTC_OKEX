@@ -25,10 +25,10 @@ import scipy
 from strategy import *
 import mpl_toolkits.mplot3d
 #####################################################初始数据
-okcoinRESTURL = 'www.okcoin.cn'
-apikey='2fd294b2-1405-4af6-a571-50bc5dd6e0f9'
-secretkey='0131228DCEC095E1BE6208E8710EAA25'
-okcoinSpot = OKCoinSpot(okcoinRESTURL,apikey,secretkey)
+okcoinRESTURL = 'www.okex.com'
+apikey='1f74f0f9-54c2-4e1c-b653-3b3d2b2995d8'
+secretkey='A04BBDEDC2B0B4436D853AA90BD4DD2B'
+okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
 #####################################################strategy
 class strategy:
     def __init__(self, url, apikey, secretkey):
@@ -36,11 +36,11 @@ class strategy:
         self.__apikey = apikey
         self.__secretkey = secretkey
 
-    def bbands_MA(M, N,ltc_cny):
+    def bbands_MA(M, N,ltc_btc):
         m = str(M)
         n = str(N)
         try:
-            kline = pd.DataFrame(okcoinSpot.getKline('1min', m, '0',ltc_cny))
+            kline = pd.DataFrame(okcoinSpot.getKline('1min', m, '0',ltc_btc))
         except ValueError as e:
             print('bbands_MA Error')
         mid = kline.iloc[::, 4].mean()
@@ -51,96 +51,96 @@ class strategy:
         result = [upper, mid, lower]
         return result
 
-    def BUY_T(info_cny, price_buy, amount, InI_COST, NOW_COST,deep,ltc_cny,db,Annotation):
+    def BUY_T(info_usdt, price_buy, amount, InI_COST, NOW_COST,deep,ltc_btc,db,Annotation):
         global true
         true = ''
         global false
         false = ''
-        if info_cny >= price_buy * amount and amount>=0.1:
+        if info_usdt >= price_buy * amount and amount>=0.1:
             price_buy=price_buy+1
-            buy = okcoinSpot.trade(ltc_cny, 'buy', price_buy, amount)
+            buy = okcoinSpot.trade(ltc_btc, 'buy', price_buy, amount)
             try:
                 buyid = str(eval(buy)['order_id'])
             except:
                 print('BuyId Error')
             # time.sleep(5)
             OKCoinSpot.progresive(6)
-            cancel_buy = okcoinSpot.cancelOrder(ltc_cny, buyid)
+            cancel_buy = okcoinSpot.cancelOrder(ltc_btc, buyid)
             if "error_code" in cancel_buy:
                 true = ''
                 false = ''
                 info = initial.info_get(1)
-                (info_ltc, info_total, info_cny, info_eth) = (info[0], info[1], info[2], info[3])
-                mysql.COST_CALCUATION(price_buy, 0.998 * amount, 0,info_ltc,info_eth,info_cny,db,Annotation)
+                (info_ltc, info_total, info_usdt, info_eth) = (info[0], info[1], info[2], info[3])
+                mysql.COST_CALCUATION(price_buy, 0.998 * amount, 0,info_ltc,info_eth,info_usdt,db,Annotation)
                 print('交易单价', price_buy, '交易数量', amount)
                 print('成交量差', analyse.bid_ask_vol_diff(deep), '成交价差', analyse.bid_ask_price_diff(deep))
                 print('月初资本', InI_COST, '当前资本', NOW_COST, '静态收益', NOW_COST - InI_COST)
             else:
                 print('取消订单号', cancel_buy)
         else:
-            print("cny不足")
-            print("交易CNY数", amount)
+            print("usdt不足")
+            print("交易usdt数", amount)
 
-    def BUY_T_ETH(info_cny, price_buy, amount, InI_COST, NOW_COST,deep,ltc_cny,db,Annotation):
+    def BUY_T_ETH(info_usdt, price_buy, amount, InI_COST, NOW_COST,deep,ltc_btc,db,Annotation):
         global true
         true = ''
         global false
         false = ''
-        if info_cny >= price_buy * amount and amount>=0.01:
+        if info_usdt >= price_buy * amount and amount>=0.01:
             price_buy=price_buy+2
-            buy = okcoinSpot.trade(ltc_cny, 'buy', price_buy, amount)
+            buy = okcoinSpot.trade(ltc_btc, 'buy', price_buy, amount)
             try:
                 buyid = str(eval(buy)['order_id'])
             except:
                 print('BuyId Error')
             # time.sleep(5)
             OKCoinSpot.progresive(6)
-            cancel_buy = okcoinSpot.cancelOrder(ltc_cny, buyid)
+            cancel_buy = okcoinSpot.cancelOrder(ltc_btc, buyid)
             if "error_code" in cancel_buy:
                 true = ''
                 false = ''
                 info = initial.info_get(1)
-                (info_ltc, info_total, info_cny, info_eth) = (info[0], info[1], info[2], info[3])
-                mysql.COST_CALCUATION_ETH(price_buy, 0.999 * amount, 0,info_ltc,info_eth,info_cny,db,Annotation)
+                (info_ltc, info_total, info_usdt, info_eth) = (info[0], info[1], info[2], info[3])
+                mysql.COST_CALCUATION_ETH(price_buy, 0.999 * amount, 0,info_ltc,info_eth,info_usdt,db,Annotation)
                 print('交易单价', price_buy, '交易数量', amount)
                 print('成交量差', analyse.bid_ask_vol_diff(deep), '成交价差', analyse.bid_ask_price_diff(deep))
                 print('月初资本', InI_COST, '当前资本', NOW_COST, '静态收益', NOW_COST - InI_COST)
             else:
                 print('取消订单号', cancel_buy)
         else:
-            print("cny不足")
-            print("交易CNY数", amount)
+            print("usdt不足")
+            print("交易usdt数", amount)
 
-    def SELL_T(info_ltc, price_sell, amount_sell, AVG_COST, charge_cny, InI_COST, NOW_COST,deep,ltc_cny,db,Annotation):
+    def SELL_T(info_ltc, price_sell, amount_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST,deep,ltc_btc,db,Annotation):
         global true
         true = ''
         global false
         false = ''
         if info_ltc > amount_sell and info_ltc>=0.1:
             price_sell=price_sell-1
-            sell = okcoinSpot.trade(ltc_cny, 'sell', price_sell, amount_sell)
+            sell = okcoinSpot.trade(ltc_btc, 'sell', price_sell, amount_sell)
             try:
                 sellid = str(eval(sell)['order_id'])
             except:
                 print('SellId Error')
             OKCoinSpot.progresive(6)
-            cancel_sell = okcoinSpot.cancelOrder(ltc_cny, sellid)
+            cancel_sell = okcoinSpot.cancelOrder(ltc_btc, sellid)
             if "error_code" in cancel_sell:
                 true = ''
                 false = ''
                 info = initial.info_get(1)
-                (info_ltc, info_total, info_cny, info_eth) = (info[0], info[1], info[2], info[3])
-                charge_cny_sell = price_sell * 0.002 * amount_sell
-                benefit = (price_sell - AVG_COST - charge_cny / 0.1) * amount_sell
-                mysql.mysql_insert_SELL_OUT(charge_cny_sell, benefit,db,Annotation)
-                mysql.COST_CALCUATION_SELL(price_sell, amount_sell, charge_cny_sell,info_ltc,info_eth,info_cny,db,Annotation)
-                # mysql.COST_CALCUATION_SELL(close, 0.1, charge_cny)
+                (info_ltc, info_total, info_usdt, info_eth) = (info[0], info[1], info[2], info[3])
+                charge_usdt_sell = price_sell * 0.002 * amount_sell
+                benefit = (price_sell - AVG_COST - charge_usdt / 0.1) * amount_sell
+                mysql.mysql_insert_SELL_OUT(charge_usdt_sell, benefit,db,Annotation)
+                mysql.COST_CALCUATION_SELL(price_sell, amount_sell, charge_usdt_sell,info_ltc,info_eth,info_usdt,db,Annotation)
+                # mysql.COST_CALCUATION_SELL(close, 0.1, charge_usdt)
                 benefit_sum = mysql.SELL_OUT(30,db)[0]
                 datetime_Start = mysql.SELL_OUT(30,db)[1]
                 datetime_End = mysql.SELL_OUT(30,db)[2]
                 print('卖出信号')
                 print('月初资本', InI_COST, '当前资本', NOW_COST, '静态收益', NOW_COST - InI_COST)
-                print('成交价', price_sell, '移动平均', AVG_COST, '交易数量', amount_sell, '卖出手续费', charge_cny_sell, '\n', '收益',
+                print('成交价', price_sell, '移动平均', AVG_COST, '交易数量', amount_sell, '卖出手续费', charge_usdt_sell, '\n', '收益',
                       benefit, '月累计收益', benefit_sum)
                 print('成交量差', analyse.bid_ask_vol_diff(deep), '成交价差', analyse.bid_ask_price_diff(deep))
                 print(datetime_Start, 'to', datetime_End)
@@ -148,38 +148,38 @@ class strategy:
             print('交易LTC数', amount_sell)
             print("LTC不足")
 
-    def SELL_T_ETH(info_ltc, price_sell, amount_sell, AVG_COST, charge_cny, InI_COST, NOW_COST,deep,ltc_cny,db,Annotation):
+    def SELL_T_ETH(info_ltc, price_sell, amount_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST,deep,ltc_btc,db,Annotation):
         global true
         true = ''
         global false
         false = ''
         if info_ltc > amount_sell and info_ltc>=0.01:
             price_sell=price_sell-1
-            sell = okcoinSpot.trade(ltc_cny, 'sell', price_sell, amount_sell)
+            sell = okcoinSpot.trade(ltc_btc, 'sell', price_sell, amount_sell)
             try:
                 sellid = str(eval(sell)['order_id'])
             except:
                 print('SellId Error')
             OKCoinSpot.progresive(6)
-            cancel_sell = okcoinSpot.cancelOrder(ltc_cny, sellid)
+            cancel_sell = okcoinSpot.cancelOrder(ltc_btc, sellid)
             if "error_code" in cancel_sell:
                 true = ''
                 false = ''
                 info = initial.info_get(1)
-                (info_ltc, info_total, info_cny, info_eth) = (info[0], info[1], info[2], info[3])
+                (info_ltc, info_total, info_usdt, info_eth) = (info[0], info[1], info[2], info[3])
                 # info = initial.info_get(1)
-                # (info_ltc, info_total, info_cny, info_eth) = (info[0], info[1], info[2], info[3])
-                charge_cny_sell = price_sell * 0.001 * amount_sell
-                benefit = (price_sell - AVG_COST - charge_cny / 0.01) * amount_sell
-                mysql.mysql_insert_SELL_OUT(charge_cny_sell, benefit,db,Annotation)
-                mysql.COST_CALCUATION_SELL_ETH(price_sell, amount_sell, charge_cny_sell,info_ltc,info_eth,info_cny,db,Annotation)
-                # mysql.COST_CALCUATION_SELL(close, 0.1, charge_cny)
+                # (info_ltc, info_total, info_usdt, info_eth) = (info[0], info[1], info[2], info[3])
+                charge_usdt_sell = price_sell * 0.001 * amount_sell
+                benefit = (price_sell - AVG_COST - charge_usdt / 0.01) * amount_sell
+                mysql.mysql_insert_SELL_OUT(charge_usdt_sell, benefit,db,Annotation)
+                mysql.COST_CALCUATION_SELL_ETH(price_sell, amount_sell, charge_usdt_sell,info_ltc,info_eth,info_usdt,db,Annotation)
+                # mysql.COST_CALCUATION_SELL(close, 0.1, charge_usdt)
                 benefit_sum = mysql.SELL_OUT(30,db)[0]
                 datetime_Start = mysql.SELL_OUT(30,db)[1]
                 datetime_End = mysql.SELL_OUT(30,db)[2]
                 print('卖出信号')
                 print('月初资本', InI_COST, '当前资本', NOW_COST, '静态收益', NOW_COST - InI_COST)
-                print('成交价', price_sell, '移动平均', AVG_COST, '交易数量', amount_sell, '卖出手续费', charge_cny_sell, '\n', '收益',
+                print('成交价', price_sell, '移动平均', AVG_COST, '交易数量', amount_sell, '卖出手续费', charge_usdt_sell, '\n', '收益',
                       benefit, '月累计收益', benefit_sum)
                 print('成交量差', analyse.bid_ask_vol_diff(deep), '成交价差', analyse.bid_ask_price_diff(deep))
                 print(datetime_Start, 'to', datetime_End)
@@ -271,73 +271,73 @@ class strategy:
 
         return amount_sell
 
-    def amount_buy_HV(info_cny,price_buy,InI_COST,NOW_COST,deep,ltc_cny,db,half,Annotation):
-        amount_buy_cal = info_cny*half / price_buy
+    def amount_buy_HV(info_usdt,price_buy,InI_COST,NOW_COST,deep,ltc_btc,db,half,Annotation):
+        amount_buy_cal = info_usdt*half / price_buy
         if amount_buy_cal>0.1:
             amount_buy = math.floor(amount_buy_cal * 100) / 100
             amount = float('%.2f' % amount_buy)
         else:
             amount=0.1
-        strategy.BUY_T(info_cny, price_buy, amount, InI_COST, NOW_COST, deep,ltc_cny,db,Annotation)
+        strategy.BUY_T(info_usdt, price_buy, amount, InI_COST, NOW_COST, deep,ltc_btc,db,Annotation)
 
 
-    def amount_buy_HV_ETH(info_cny,price_buy,InI_COST,NOW_COST,deep,ltc_cny,db,half,Annotation):
-        amount_buy_cal = info_cny*half / price_buy
+    def amount_buy_HV_ETH(info_usdt,price_buy,InI_COST,NOW_COST,deep,ltc_btc,db,half,Annotation):
+        amount_buy_cal = info_usdt*half / price_buy
         if amount_buy_cal>0.01:
             amount_buy = math.floor(amount_buy_cal * 1000) / 1000
             amount = float('%.3f' % amount_buy)
         else:
             amount=0.01
-        strategy.BUY_T_ETH(info_cny, price_buy, amount, InI_COST, NOW_COST, deep,ltc_cny,db,Annotation)
+        strategy.BUY_T_ETH(info_usdt, price_buy, amount, InI_COST, NOW_COST, deep,ltc_btc,db,Annotation)
 
 
-    def amount_sell_HV(info_ltc,price_sell,AVG_COST,charge_cny,InI_COST,NOW_COST,deep,ltc_cny,db,half,Annotation):
+    def amount_sell_HV(info_ltc,price_sell,AVG_COST,charge_usdt,InI_COST,NOW_COST,deep,ltc_btc,db,half,Annotation):
         a=info_ltc*half
         if a>0.1:
             amount_sell_TMP = math.floor(info_ltc*half * 100) / 100
             amount_sell = float('%.2f' % amount_sell_TMP)
         else:
             amount_sell=0.1
-        strategy.SELL_T(info_ltc, price_sell, amount_sell, AVG_COST, charge_cny, InI_COST, NOW_COST,deep,ltc_cny,db,Annotation)
+        strategy.SELL_T(info_ltc, price_sell, amount_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST,deep,ltc_btc,db,Annotation)
 
-    def amount_sell_HV_ETH(info_ltc,price_sell,AVG_COST,charge_cny,InI_COST,NOW_COST,deep,ltc_cny,db,half,Annotation):
+    def amount_sell_HV_ETH(info_ltc,price_sell,AVG_COST,charge_usdt,InI_COST,NOW_COST,deep,ltc_btc,db,half,Annotation):
         a=info_ltc*half
         if a>0.01:
             amount_sell_TMP = math.floor(info_ltc*half * 1000) / 1000
             amount_sell = float('%.3f' % amount_sell_TMP)
         else:
             amount_sell=0.01
-        strategy.SELL_T_ETH(info_ltc, price_sell, amount_sell, AVG_COST, charge_cny, InI_COST, NOW_COST,deep,ltc_cny,db,Annotation)
+        strategy.SELL_T_ETH(info_ltc, price_sell, amount_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST,deep,ltc_btc,db,Annotation)
 
-    def boll_buy(close,upper,ref_close,ref_upper,info_cny,price_buy,InI_COST,NOW_COST,deep,ltc_cny,db):
+    def boll_buy(close,upper,ref_close,ref_upper,info_usdt,price_buy,InI_COST,NOW_COST,deep,ltc_btc,db):
         if close > upper and ref_close < ref_upper:
             print('布林线买入信号')
             amount = strategy.amount_buy(close,db)
-            strategy.BUY_T(info_cny, price_buy, amount, InI_COST, NOW_COST, deep,ltc_cny,db,'布林线买入信号')
+            strategy.BUY_T(info_usdt, price_buy, amount, InI_COST, NOW_COST, deep,ltc_btc,db,'布林线买入信号')
         else:
             print('BOLL_BUY_MISS')
 
-    def boll_buy_eth(close,upper,ref_close,ref_upper,info_cny,price_buy,InI_COST,NOW_COST,deep,ltc_cny,db):
+    def boll_buy_eth(close,upper,ref_close,ref_upper,info_usdt,price_buy,InI_COST,NOW_COST,deep,ltc_btc,db):
         if close > upper and ref_close < ref_upper:
             print('布林线买入信号')
             amount = strategy.amount_buy_eth(close,db)
-            strategy.BUY_T_ETH(info_cny, price_buy, amount, InI_COST, NOW_COST, deep,ltc_cny,db,'布林线买入信号')
+            strategy.BUY_T_ETH(info_usdt, price_buy, amount, InI_COST, NOW_COST, deep,ltc_btc,db,'布林线买入信号')
         else:
             print('BOLL_BUY_MISS')
 
-    def boll_sell(close,ref_close,ref_ma34,last,AVG_COST,charge_cny,ma34,price_sell,info_ltc,InI_COST,NOW_COST,deep,ltc_cny,db):
-        if close < ma34 and ref_close > ref_ma34 and last > AVG_COST + charge_cny / 0.1 + 7:
+    def boll_sell(close,ref_close,ref_ma34,last,AVG_COST,charge_usdt,ma34,price_sell,info_ltc,InI_COST,NOW_COST,deep,ltc_btc,db):
+        if close < ma34 and ref_close > ref_ma34 and last > AVG_COST + charge_usdt / 0.1 + 7:
             print('布林线卖出信号')
             amount_sell =strategy.amount_sell(close,db)
-            strategy.SELL_T(info_ltc, price_sell, amount_sell, AVG_COST, charge_cny, InI_COST, NOW_COST,deep,ltc_cny,db,'布林线卖出信号')
+            strategy.SELL_T(info_ltc, price_sell, amount_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST,deep,ltc_btc,db,'布林线卖出信号')
         else:
             print('BOLL_SELL_MISS')
 
-    def boll_sell_eth(close,ref_close,ref_ma34,last,AVG_COST,charge_cny,ma34,price_sell,info_ltc,InI_COST,NOW_COST,deep,ltc_cny,db):
-        if close < ma34 and ref_close > ref_ma34 and last > AVG_COST + charge_cny / 0.1 + 70:
+    def boll_sell_eth(close,ref_close,ref_ma34,last,AVG_COST,charge_usdt,ma34,price_sell,info_ltc,InI_COST,NOW_COST,deep,ltc_btc,db):
+        if close < ma34 and ref_close > ref_ma34 and last > AVG_COST + charge_usdt / 0.1 + 70:
             print('布林线卖出信号')
             amount_sell =strategy.amount_sell_eth(close,db)
-            strategy.SELL_T_ETH(info_ltc, price_sell, amount_sell, AVG_COST, charge_cny, InI_COST, NOW_COST,deep,ltc_cny,db,'布林线卖出信号')
+            strategy.SELL_T_ETH(info_ltc, price_sell, amount_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST,deep,ltc_btc,db,'布林线卖出信号')
         else:
             print('BOLL_SELL_MISS')
 
@@ -352,35 +352,35 @@ class initial:
             info_ltc = eval(eval(okcoinSpot.userinfo())['info']['funds']['free']['ltc'])
             info_eth = eval(eval(okcoinSpot.userinfo())['info']['funds']['free']['eth'])
             info_total = eval(eval(okcoinSpot.userinfo())['info']['funds']['asset']['total'])
-            info_cny = eval(eval(okcoinSpot.userinfo())['info']['funds']['free']['cny'])
-            info_freeze_cny = eval(eval(okcoinSpot.userinfo())['info']['funds']['freezed']['cny'])
+            info_usdt = eval(eval(okcoinSpot.userinfo())['info']['funds']['free']['usdt'])
+            info_freeze_usdt = eval(eval(okcoinSpot.userinfo())['info']['funds']['freezed']['usdt'])
             info_freeze_ltc = eval(eval(okcoinSpot.userinfo())['info']['funds']['freezed']['ltc'])
 
         except:
             print('info_get Error')
-        return info_ltc,info_total,info_cny,info_eth,info_freeze_cny,info_freeze_ltc
+        return info_ltc,info_total,info_usdt,info_eth,info_freeze_usdt,info_freeze_ltc
 
-    def boll_get(i,ltc_cny):
+    def boll_get(i,ltc_btc):
         try:
-            ref_boll = strategy.bbands_MA(94, 2,ltc_cny)
+            ref_boll = strategy.bbands_MA(94, 2,ltc_btc)
             ref_upper = ref_boll[0]
             ref_lower = ref_boll[2]
-            ref_close = okcoinSpot.getKline('1min', '1', '0',ltc_cny)[0][4]
-            ref_ma34 = pd.DataFrame(okcoinSpot.getKline('1min', '34', '0',ltc_cny)).iloc[::, 4].mean()
+            ref_close = okcoinSpot.getKline('1min', '1', '0',ltc_btc)[0][4]
+            ref_ma34 = pd.DataFrame(okcoinSpot.getKline('1min', '34', '0',ltc_btc)).iloc[::, 4].mean()
         except:
             print('boll_get Error')
         return ref_upper,ref_lower,ref_close,ref_ma34
 
 class PRE:
 
-    def DATA(i,db,ltc_cny,bid_ask_vl):
-        VOL_TMP = okcoinSpot.ticker(ltc_cny)
+    def DATA(i,db,ltc_btc,bid_ask_vl):
+        VOL_TMP = okcoinSpot.ticker(ltc_btc)
         volume = float(VOL_TMP["ticker"]["vol"])
-        deep = pd.DataFrame(okcoinSpot.depth(ltc_cny))
+        deep = pd.DataFrame(okcoinSpot.depth(ltc_btc))
         deep = analyse.cut(deep)
-        high = float(initial.boll_get(1,ltc_cny)[0])
-        low = float(initial.boll_get(1,ltc_cny)[1])
-        last = float(initial.boll_get(1,ltc_cny)[2])
+        high = float(initial.boll_get(1,ltc_btc)[0])
+        low = float(initial.boll_get(1,ltc_btc)[1])
+        last = float(initial.boll_get(1,ltc_btc)[2])
         # bid_ask_vl=float(analyse.bid_ask_vol_diff(deep))
         bid_ask_vl = bid_ask_vl
         RE_EMA_12 = Mysql_KPI.EMA_SELECT(1,db)[0]
@@ -394,14 +394,14 @@ class PRE:
         Mysql_KPI.EMA_INSERT(EMA_12, EMA_26,last, high, low,DEA,DIF,BAR,bid_ask_vl,volume,db)
         return EMA_12, EMA_26,last, high, low,DEA,DIF,BAR,bid_ask_vl,volume
 
-    def DATA_eth(i,db,ltc_cny,bid_ask_vl):
-        VOL_TMP = okcoinSpot.ticker(ltc_cny)
+    def DATA_eth(i,db,ltc_btc,bid_ask_vl):
+        VOL_TMP = okcoinSpot.ticker(ltc_btc)
         volume = float(VOL_TMP["ticker"]["vol"])
-        deep = pd.DataFrame(okcoinSpot.depth(ltc_cny))
+        deep = pd.DataFrame(okcoinSpot.depth(ltc_btc))
         deep = analyse.cut(deep)
-        high = float(initial.boll_get(1,ltc_cny)[0])
-        low = float(initial.boll_get(1,ltc_cny)[1])
-        last = float(initial.boll_get(1,ltc_cny)[2])
+        high = float(initial.boll_get(1,ltc_btc)[0])
+        low = float(initial.boll_get(1,ltc_btc)[1])
+        last = float(initial.boll_get(1,ltc_btc)[2])
         bid_ask_vl=bid_ask_vl
         RE_EMA_12 = Mysql_KPI.EMA_SELECT_ETH(1,db)[0]
         RE_EMA_26 = Mysql_KPI.EMA_SELECT_ETH(1,db)[1]
@@ -783,11 +783,11 @@ class PRE:
                 result = cursor.fetchone()
                 AVG_COST=result["BAR"]
                 Amount=result["bid_ask_vl"]
-                CNY=result["volume"]
+                usdt=result["volume"]
                 # print(result,AVG_COST,Amount)
             # 没有设置默认自动提交，需要主动提交，以保存所执行的语句
             connection.commit()
-            return AVG_COST, Amount, CNY
+            return AVG_COST, Amount, usdt
         finally:
             connection.close();
     def KPI_ETH(d,db):
@@ -813,11 +813,11 @@ class PRE:
                 result = cursor.fetchone()
                 AVG_COST=result["BAR"]
                 Amount=result["bid_ask_vl"]
-                CNY=result["volume"]
+                usdt=result["volume"]
                 # print(result,AVG_COST,Amount)
             # 没有设置默认自动提交，需要主动提交，以保存所执行的语句
             connection.commit()
-            return AVG_COST, Amount, CNY
+            return AVG_COST, Amount, usdt
         finally:
             connection.close();
 
@@ -1139,40 +1139,40 @@ class PRE:
         finally:
             connection.close();
 
-    def Change_Ltc(amount,amount_A,info_cny,price_buy,info_ltc,R_Value_ETH,info_eth,price_sell_eth,AVG_COST_ETH,charge_cny_eth,InI_COST,NOW_COST,deep_eth, deep,bar_eth,Annotation):
-        if info_cny < amount * price_buy * info_ltc and R_Value_ETH > 0.1 and bar_eth<3.125:
+    def Change_Ltc(amount,amount_A,info_usdt,price_buy,info_ltc,R_Value_ETH,info_eth,price_sell_eth,AVG_COST_ETH,charge_usdt_eth,InI_COST,NOW_COST,deep_eth, deep,bar_eth,Annotation):
+        if info_usdt < amount * price_buy * info_ltc and R_Value_ETH > 0.1 and bar_eth<3.125:
             p_ltc = info_ltc * amount
             if p_ltc < 0.1:
                 p_ltc = 0.1
             print('调整配仓+', p_ltc, 'ltc')
 
-            p_pcgt = (amount * price_buy * info_ltc-info_cny) / (info_eth * price_sell_eth)
+            p_pcgt = (amount * price_buy * info_ltc-info_usdt) / (info_eth * price_sell_eth)
             p_pcgt = math.floor(p_pcgt * 100) / 100
             p_pcg = float('%.2f' % p_pcgt)
-            strategy.amount_sell_HV_ETH(info_eth, price_sell_eth, AVG_COST_ETH, charge_cny_eth, InI_COST, NOW_COST,
+            strategy.amount_sell_HV_ETH(info_eth, price_sell_eth, AVG_COST_ETH, charge_usdt_eth, InI_COST, NOW_COST,
                                         deep_eth,
-                                        'eth_cny', 'Python', p_pcg,'调整配仓')
+                                        'eth_usdt', 'Python', p_pcg,'调整配仓')
             price_buy = price_buy + 2
-            strategy.amount_buy_HV(info_cny, price_buy, InI_COST, NOW_COST, deep, 'ltc_cny', 'Python', 1,Annotation)
+            strategy.amount_buy_HV(info_usdt, price_buy, InI_COST, NOW_COST, deep, 'ltc_btc', 'Python', 1,Annotation)
         else:
-            strategy.amount_buy_HV(info_cny, price_buy, InI_COST, NOW_COST, deep, 'ltc_cny', 'Python', amount_A,Annotation)
+            strategy.amount_buy_HV(info_usdt, price_buy, InI_COST, NOW_COST, deep, 'ltc_btc', 'Python', amount_A,Annotation)
 
-    def Change_Eth(amount,amount_A,info_cny,price_buy_eth,info_eth,R_Value,info_ltc,price_sell,AVG_COST,charge_cny,InI_COST,NOW_COST,deep,deep_eth,bar,Annotation):
-        if info_cny < amount * price_buy_eth * info_eth and R_Value > 0.1 and bar<1.25:
+    def Change_Eth(amount,amount_A,info_usdt,price_buy_eth,info_eth,R_Value,info_ltc,price_sell,AVG_COST,charge_usdt,InI_COST,NOW_COST,deep,deep_eth,bar,Annotation):
+        if info_usdt < amount * price_buy_eth * info_eth and R_Value > 0.1 and bar<1.25:
             p_eth = info_eth * amount
             if p_eth < 0.1:
                 p_eth = 0.1
             print('调整配仓+', p_eth, 'eth')
             Annotation_Sell = '调整配仓'
-            p_pcgt = (amount * price_buy_eth * info_eth-info_cny) / (info_ltc * price_sell)
+            p_pcgt = (amount * price_buy_eth * info_eth-info_usdt) / (info_ltc * price_sell)
             p_pcgt = math.floor(p_pcgt * 100) / 100
             p_pcg = float('%.2f' % p_pcgt)
-            strategy.amount_sell_HV(info_ltc, price_sell, AVG_COST, charge_cny, InI_COST, NOW_COST, deep,
-                                    'ltc_cny', 'Python', p_pcg,'调整配仓')
+            strategy.amount_sell_HV(info_ltc, price_sell, AVG_COST, charge_usdt, InI_COST, NOW_COST, deep,
+                                    'ltc_btc', 'Python', p_pcg,'调整配仓')
             price_buy_eth = price_buy_eth + 2
-            strategy.amount_buy_HV_ETH(info_cny, price_buy_eth, InI_COST, NOW_COST, deep_eth, 'eth_cny', 'Python', 1,Annotation)
+            strategy.amount_buy_HV_ETH(info_usdt, price_buy_eth, InI_COST, NOW_COST, deep_eth, 'eth_usdt', 'Python', 1,Annotation)
         else:
-            strategy.amount_buy_HV_ETH(info_cny, price_buy_eth, InI_COST, NOW_COST, deep_eth, 'eth_cny', 'Python', amount_A,Annotation)
+            strategy.amount_buy_HV_ETH(info_usdt, price_buy_eth, InI_COST, NOW_COST, deep_eth, 'eth_usdt', 'Python', amount_A,Annotation)
 if __name__=='__main__':
 
 

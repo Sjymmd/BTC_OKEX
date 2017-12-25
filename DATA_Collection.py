@@ -21,9 +21,9 @@ import time
 import math
 
 ######################################################
-okcoinRESTURL = 'www.okcoin.cn'
-apikey='2fd294b2-1405-4af6-a571-50bc5dd6e0f9'
-secretkey='0131228DCEC095E1BE6208E8710EAA25'
+okcoinRESTURL = 'www.okex.com'
+apikey='1f74f0f9-54c2-4e1c-b653-3b3d2b2995d8'
+secretkey='A04BBDEDC2B0B4436D853AA90BD4DD2B'
 okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
 ######################################################
 try:
@@ -38,24 +38,24 @@ try:
 except:
     print('info Error')
 try:
-    ref_upper = initial.boll_get(1, 'ltc_cny')[0]
-    ref_lower = initial.boll_get(1, 'ltc_cny')[1]
-    ref_close = initial.boll_get(1, 'ltc_cny')[2]
-    ref_ma34 = initial.boll_get(1, 'ltc_cny')[3]
-    last = okcoinSpot.ticker('ltc_cny')
+    ref_upper = initial.boll_get(1, 'ltc_btc')[0]
+    ref_lower = initial.boll_get(1, 'ltc_btc')[1]
+    ref_close = initial.boll_get(1, 'ltc_btc')[2]
+    ref_ma34 = initial.boll_get(1, 'ltc_btc')[3]
+    last = okcoinSpot.ticker('ltc_btc')
     last = float(last["ticker"]["last"])
 
-    ref_upper_eth = initial.boll_get(1, 'eth_cny')[0]
-    ref_lower_eth = initial.boll_get(1, 'eth_cny')[1]
-    ref_close_eth = initial.boll_get(1, 'eth_cny')[2]
-    ref_ma34_eth = initial.boll_get(1, 'eth_cny')[3]
+    ref_upper_eth = initial.boll_get(1, 'eth_usdt')[0]
+    ref_lower_eth = initial.boll_get(1, 'eth_usdt')[1]
+    ref_close_eth = initial.boll_get(1, 'eth_usdt')[2]
+    ref_ma34_eth = initial.boll_get(1, 'eth_usdt')[3]
 
-    last_eth = okcoinSpot.ticker('eth_cny')
+    last_eth = okcoinSpot.ticker('eth_usdt')
     last_eth = float(last_eth["ticker"]["last"])
 except:
     print('boll Error')
 try:
-    # last = okcoinSpot.ticker('ltc_cny')
+    # last = okcoinSpot.ticker('ltc_btc')
     # last = float(last["ticker"]["last"])
     print(datetime.datetime.now())
     print('Info_Total', info_total, 'Info_Ltc', info_ltc, 'Info_eth', info_eth, 'Info_cny', info_cny)
@@ -133,7 +133,7 @@ while True:
             continue
         #########ltc#########
         try:
-            deep = pd.DataFrame(okcoinSpot.depth('ltc_cny'))
+            deep = pd.DataFrame(okcoinSpot.depth('ltc_btc'))
             deep = analyse.cut(deep)
             price_buy = float(str(deep['bid_price'].max()))
             price_sell = float(str(deep['bid_price'][1]))
@@ -149,7 +149,7 @@ while True:
 
         #########eth#########
         try:
-            deep_eth = pd.DataFrame(okcoinSpot.depth('eth_cny'))
+            deep_eth = pd.DataFrame(okcoinSpot.depth('eth_usdt'))
             deep_eth = analyse.cut(deep_eth)
             price_buy_eth = float(str(deep_eth['bid_price'].max()))
             price_sell_eth = float(str(deep_eth['bid_price'][1]))
@@ -165,22 +165,22 @@ while True:
         ######################################################
         try:
             #########ltc#########
-            last = okcoinSpot.ticker('ltc_cny')
+            last = okcoinSpot.ticker('ltc_btc')
             last = float(last["ticker"]["last"])
-            boll = strategy.bbands_MA(94, 2, 'ltc_cny')
+            boll = strategy.bbands_MA(94, 2, 'ltc_btc')
             upper = boll[0]
             lower = boll[2]
-            close = okcoinSpot.getKline('1min', '1', '0', 'ltc_cny')[0][4]
-            ma34 = pd.DataFrame(okcoinSpot.getKline('1min', '34', '0', 'ltc_cny')).iloc[::, 4].mean()
+            close = okcoinSpot.getKline('1min', '1', '0', 'ltc_btc')[0][4]
+            ma34 = pd.DataFrame(okcoinSpot.getKline('1min', '34', '0', 'ltc_btc')).iloc[::, 4].mean()
 
             #########eth#########
-            last_eth = okcoinSpot.ticker('eth_cny')
+            last_eth = okcoinSpot.ticker('eth_usdt')
             last_eth = float(last_eth["ticker"]["last"])
-            boll_eth = strategy.bbands_MA(94, 2, 'eth_cny')
+            boll_eth = strategy.bbands_MA(94, 2, 'eth_usdt')
             upper_eth = boll_eth[0]
             lower_eth = boll_eth[2]
-            close_eth = okcoinSpot.getKline('1min', '1', '0', 'eth_cny')[0][4]
-            ma34_eth = pd.DataFrame(okcoinSpot.getKline('1min', '34', '0', 'eth_cny')).iloc[::, 4].mean()
+            close_eth = okcoinSpot.getKline('1min', '1', '0', 'eth_usdt')[0][4]
+            ma34_eth = pd.DataFrame(okcoinSpot.getKline('1min', '34', '0', 'eth_usdt')).iloc[::, 4].mean()
             ######################################################
             InI_COST = mysql.INI_COST(1, 'Python')[0]
             NOW_COST = mysql.mysql_SELECT_BUY_SELL(1, 'Python')[5]
@@ -236,7 +236,7 @@ while True:
         print('LTC')
         print(R_Value, NOWCOST_LTC)
 
-        print(PRE.DATA(1, 'Python', 'ltc_cny', INSERT_TMP))
+        print(PRE.DATA(1, 'Python', 'ltc_btc', INSERT_TMP))
         print('R_AVG', R_AVG, 'BAR_AVG', BAR_AVG, 'bid_ask_vl', bid_ask_vl)
 
         print('close', close, 'upper', upper, 'ma34', ma34, 'reclose', ref_close, 'ref_ma34', ref_ma34)
@@ -252,7 +252,7 @@ while True:
 
         print('ETH')
         print(R_Value_ETH, NOWCOST_ETH)
-        print(PRE.DATA_eth(1, 'Python', 'eth_cny', INSERT_TMP_ETH))
+        print(PRE.DATA_eth(1, 'Python', 'eth_usdt', INSERT_TMP_ETH))
         print(R_AVG_ETH, BAR_AVG_ETH, bid_ask_vl_eth)
 
         print('close', close_eth, 'upper', upper_eth, 'ma34', ma34_eth, 'reclose', ref_close_eth, 'ref_ma34',

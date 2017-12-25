@@ -181,7 +181,7 @@ class OKCoinSpot:
         return httpPost(self.__url, ORDER_HISTORY_RESOURCE, params)
 
     def getKline(self, duration, size, since,ltc_cny):
-        kline_resourse = "https://www.okcoin.cn/api/v1/kline.do"
+        kline_resourse = "https://www.okex.com/api/v1/kline.do"
         params = {
             # 'api_key': self.__apikey,
             'symbol': ltc_cny,
