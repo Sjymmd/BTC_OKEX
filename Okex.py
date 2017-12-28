@@ -29,14 +29,22 @@ okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
 # Total =okcoinSpot.userinfo()
 # print(Total)
 # print(eval(eval(okcoinSpot.userinfo())['info']['funds']['free']['usdt']))
-
-DateFrame = pd.DataFrame()
-timeStamp = pd.DataFrame(okcoinSpot.getKline('1day', '30', '0','snt_btc')).iloc[:,0]
-func = lambda x:time.localtime(x)
-funcn = lambda x:time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(x))
-T = timeStamp.apply(func)
-print(T)
-DateFrame['snt_btc']=pd.DataFrame(okcoinSpot.getKline('1day', '24', '0','snt_btc')).iloc[:,4]
+lenth = 1
+Coin = ['snt_btc','ltc_btc','eth_btc','eos_btc','etc_btc','neo_btc','dash_btc','omg_btc','bcd_btc','yoyo_btc']
+DateFrame = pd.DataFrame(columns=('Coin','Inc'))
+for x in Coin:
+    Inc = pd.DataFrame(okcoinSpot.getKline('1day', 'lenth', '0',x)).iloc[:,]
+    increase = (float(Inc.iloc[lenth-1,4])-float(Inc.iloc[0,1]))/float(Inc.iloc[0,1])*100
+    increase = str('%d'%(increase)+'%')
+    Timeshrft = pd.Series({'Coin':x,'Inc':increase})
+    DateFrame = DateFrame.append(Timeshrft,ignore_index=True)
+DateFrame = DateFrame.sort_values(by='Inc',ascending=False)
+print('%s' %lenth+'天涨幅')
+print(DateFrame)
+# print(timeStamp)
+# func = lambda x:time.localtime(x)
+# funcn = lambda x:time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(x))
+# T = timeStamp.apply(func)
 
 # print(pd.DataFrame(okcoinSpot.getKline('1day', '1', '0','snt_btc')))
 # print (u' 现货行情 ')
