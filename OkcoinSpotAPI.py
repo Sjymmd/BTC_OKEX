@@ -2,11 +2,6 @@
 """
 Created on Fri Jan 13 10:36:19 2017
 
-@author: mjc
-
-E-mail:1005965744@qq.com
-
-Differentiate yourself in the world from anyone else.
 """
 # 用于访问OKCOIN 现货REST API
 ##############################################################################
