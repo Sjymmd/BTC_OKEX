@@ -72,15 +72,16 @@ class Okex_Api:
         price = float(data.iloc[self._Lenth - 1, 4])
         Cny = price*self._USD_CNY
         Volume = data.iloc[:, 5].apply(pd.to_numeric)
-        Volume_Mean = Volume.mean()
-        Volume_Pre  = Volume[self._Lenth-2]
+        Volume_Mean = round(Volume.mean(),2)
+        Volume_Pre  = round(Volume[self._Lenth-2],2)
         Volume_Pre_P = round((Volume[self._Lenth-2]/Volume[self._Lenth-3]),2)
-        return Cny,Increase,Volume_Mean/1000,Volume_Pre/1000,Volume_Pre_P
+        Volume_Inc = round(((Volume_Pre-Volume_Mean)/Volume_Mean),2)
+        return Cny,Increase,Volume_Mean/1000,Volume_Pre/1000,Volume_Pre_P,Volume_Inc
 
     def GetDataframe(self,DataFrame,Coin):
-        Cny, Increase, Volume_Mean, Volume_Pre, Volume_Pre_P = self.GetKline(Coin)
+        Cny, Increase, Volume_Mean, Volume_Pre, Volume_Pre_P,Volume_Inc = self.GetKline(Coin)
         Timeshrft = pd.Series({'Coin': Coin, 'Cny': Cny, 'Inc': Increase, 'Volume_Pre_K': Volume_Pre,
-                                   'Mean_Volume_K': Volume_Mean, '_Volume': Volume_Pre_P})
+                                   'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P,'_VolumeM':Volume_Inc})
         DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
         return DataFrame
 
@@ -95,7 +96,7 @@ def Run(default = True):
             Main.Input()
         else:
             print('使用默认参数配置')
-        DataFrame = pd.DataFrame(columns=("Coin", "Cny", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_Volume"))
+        DataFrame = pd.DataFrame(columns=("Coin", "Cny", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
 
         for x in Coin[:int(Main._CoinLenth)]:
             try:
@@ -103,18 +104,19 @@ def Run(default = True):
             except:
                 # print('%s 读取失败' % x)
                 continue
-        DataFrame['Temp']=(DataFrame['Volume_Pre_K']-DataFrame['Mean_Volume_K'])/DataFrame['Mean_Volume_K']
-        DataFrame['Temp_2'] =DataFrame['Cny']*DataFrame['Mean_Volume_K']
-        Mean_Mean_Volume_K = DataFrame['Temp_2'].mean()
-        DataFrame = DataFrame[DataFrame.Temp_2>=Mean_Mean_Volume_K]
-        DataFrame = DataFrame[DataFrame._Volume >1]
-        DataFrame = DataFrame.sort_values(by='Temp', ascending=False)
-        DataFrame.pop('Temp')
-        DataFrame.pop('Temp_2')
+        DataFrame['Volume_Cny_K'] =DataFrame['Cny']*DataFrame['Mean_Volume_K']
+        Mean_Mean_Volume_K = DataFrame['Volume_Cny_K'].mean()
+        DataFrame = DataFrame[DataFrame.Volume_Cny_K >=Mean_Mean_Volume_K]
+        DataFrame = DataFrame[DataFrame._VolumeS >1]
+        DataFrame = DataFrame.sort_values(by='_VolumeS', ascending=False)
+        DataFrame.pop('Volume_Cny_K')
         DataFrame = DataFrame.iloc[:10, ]
         Watch_Coin = str(Main._Watch_Coin + '_usdt')
         DataFrame = Main.GetDataframe(DataFrame, Watch_Coin)
         DataFrame =DataFrame.drop_duplicates(['Coin'])
+        DataFrame = DataFrame.sort_values(by='_VolumeS', ascending=False)
+        for x in DataFrame.index:
+            DataFrame.iloc[x, 6] = str('%.2f' % DataFrame.iloc[x, 6] + '%')
         if DataFrame.empty:
             print('没有符合的币种')
         else:
@@ -127,5 +129,10 @@ if __name__=='__main__':
         Run(False)
     from apscheduler.schedulers.blocking import BlockingScheduler
     sched = BlockingScheduler()
-    sched.add_job(job,'cron', minute = 5)
-    sched.start()
+    while True:
+        sched.add_job(job,'cron', minute = 5)
+        try:
+            sched.start()
+        except:
+            print('定时任务出错')
+            continue
