@@ -115,6 +115,7 @@ def Run(default = True):
         DataFrame = Main.GetDataframe(DataFrame, Watch_Coin)
         DataFrame =DataFrame.drop_duplicates(['Coin'])
         DataFrame = DataFrame.sort_values(by='_VolumeS', ascending=False)
+        DataFrame=DataFrame.reset_index(drop=True)
         for x in DataFrame.index:
             DataFrame.iloc[x, 6] = str('%.2f' % DataFrame.iloc[x, 6] + '%')
         if DataFrame.empty:
@@ -135,4 +136,5 @@ if __name__=='__main__':
             sched.start()
         except:
             print('定时任务出错')
+            time.sleep(20)
             continue
