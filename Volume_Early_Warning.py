@@ -10,6 +10,7 @@ E-mail:1005965744@qq.com
 #
 from OkcoinSpotAPI import *
 import pandas as pd
+import time
 import datetime
 import numpy as np
 import warnings
@@ -73,8 +74,8 @@ class Okex_Api:
         Volume = data.iloc[:, 5].apply(pd.to_numeric)
         Volume_Mean = Volume.mean()
         Volume_Pre  = Volume[self._Lenth-2]
-        Volume_Pre_P = Volume[self._Lenth-2]/Volume[self._Lenth-3]
-        return Cny,Increase,Volume_Mean/1000,Volume_Pre/1000,Volume_Pre_P/1000
+        Volume_Pre_P = round((Volume[self._Lenth-2]/Volume[self._Lenth-3]),2)
+        return Cny,Increase,Volume_Mean/1000,Volume_Pre/1000,Volume_Pre_P
 
     def GetDataframe(self,DataFrame,Coin):
         Cny, Increase, Volume_Mean, Volume_Pre, Volume_Pre_P = self.GetKline(Coin)
@@ -86,6 +87,10 @@ class Okex_Api:
 def Run(default = True):
         Main = Okex_Api()
         Coin = Main.GetCoin()
+        now = datetime.datetime.now()
+        now = now.strftime('%Y-%m-%d %H:%M:%S')
+        print(now)
+        StartTime = time.time()
         if default :
             Main.Input()
         else:
@@ -102,7 +107,7 @@ def Run(default = True):
         DataFrame['Temp_2'] =DataFrame['Cny']*DataFrame['Mean_Volume_K']
         Mean_Mean_Volume_K = DataFrame['Temp_2'].mean()
         DataFrame = DataFrame[DataFrame.Temp_2>=Mean_Mean_Volume_K]
-        # DataFrame = DataFrame[DataFrame._Volume >1]
+        DataFrame = DataFrame[DataFrame._Volume >1]
         DataFrame = DataFrame.sort_values(by='Temp', ascending=False)
         DataFrame.pop('Temp')
         DataFrame.pop('Temp_2')
@@ -114,14 +119,13 @@ def Run(default = True):
             print('没有符合的币种')
         else:
             print(DataFrame)
-
+        EndTime = time.time()
+        print('Using_Time: %d sec'%int(EndTime - StartTime))
 if __name__=='__main__':
 
     def job():
         Run(False)
     from apscheduler.schedulers.blocking import BlockingScheduler
-
     sched = BlockingScheduler()
-    sched.add_job(job,'cron', minute = 4)
+    sched.add_job(job,'cron', minute = 5)
     sched.start()
-
