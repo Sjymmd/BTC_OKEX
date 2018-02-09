@@ -72,11 +72,11 @@ class Okex_Api:
         price = float(data.iloc[self._Lenth - 1, 4])
         Cny = price*self._USD_CNY
         Volume = data.iloc[:, 5].apply(pd.to_numeric)
-        Volume_Mean = round(Volume.mean(),2)
-        Volume_Pre  = round(Volume[self._Lenth-2],2)
+        Volume_Mean = Volume.mean()
+        Volume_Pre  = Volume[self._Lenth-2]
         Volume_Pre_P = round((Volume[self._Lenth-2]/Volume[self._Lenth-3]),2)
         Volume_Inc = round(((Volume_Pre-Volume_Mean)/Volume_Mean),2)
-        return Cny,Increase,Volume_Mean/1000,Volume_Pre/1000,Volume_Pre_P,Volume_Inc
+        return round(Cny,2),Increase,round(Volume_Mean/1000,2),round(Volume_Pre/1000,2),Volume_Pre_P,Volume_Inc
 
     def GetDataframe(self,DataFrame,Coin):
         Cny, Increase, Volume_Mean, Volume_Pre, Volume_Pre_P,Volume_Inc = self.GetKline(Coin)
