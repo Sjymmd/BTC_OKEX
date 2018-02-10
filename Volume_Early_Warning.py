@@ -29,7 +29,7 @@ class Okex_Api:
         self._Lenth = 24
         self._KlineChose = '1hour'
         self._Watch_Coin = 'snt'
-        self._USD_CNY = okcoinfuture.exchange_rate()['rate']
+        self._USDT_CNY = okcoinfuture.exchange_rate()['rate']
 
     def Input(self):
         Str = '\n'.join(self._Kline.values())
@@ -68,15 +68,15 @@ class Okex_Api:
     def GetKline(self,Coin):
         data = pd.DataFrame(okcoinSpot.getKline(self._Kline[self._KlineChose], self._Lenth, '0', Coin)).iloc[:, ]
         Increase = (float(data.iloc[self._Lenth - 1, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
-        Increase = str('%d'%(Increase)+'%')
+        Increase = str('%.2f'%(Increase)+'%')
         price = float(data.iloc[self._Lenth - 1, 4])
-        Cny = price*self._USD_CNY
+        Cny = round(price*self._USDT_CNY,2)
         Volume = data.iloc[:, 5].apply(pd.to_numeric)
-        Volume_Mean = Volume.mean()
-        Volume_Pre  = Volume[self._Lenth-2]
+        Volume_Mean = round(Volume.mean()/1000,2)
+        Volume_Pre  = round(Volume[self._Lenth-2]/1000,2)
         Volume_Pre_P = round((Volume[self._Lenth-2]/Volume[self._Lenth-3]),2)
         Volume_Inc = round(((Volume_Pre-Volume_Mean)/Volume_Mean),2)
-        return round(Cny,2),Increase,round(Volume_Mean/1000,2),round(Volume_Pre/1000,2),Volume_Pre_P,Volume_Inc
+        return Cny,Increase,Volume_Mean,Volume_Pre,Volume_Pre_P,Volume_Inc
 
     def GetDataframe(self,DataFrame,Coin):
         Cny, Increase, Volume_Mean, Volume_Pre, Volume_Pre_P,Volume_Inc = self.GetKline(Coin)
