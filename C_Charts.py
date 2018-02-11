@@ -7,7 +7,7 @@ Okex_Api = Okex_Api()
 # Coin = Okex_Api.GetCoin()
 Coin = ['btc_usdt','snt_usdt']
 Okex_Api._CoinLenth = len(Coin)
-Okex_Api._KlineChosen = '1day'
+Okex_Api._KlineChosen = '5min'
 Okex_Api._Lenth = 24*100
 for x in Coin[:int(Okex_Api._CoinLenth)]:
     DataFrame = pd.DataFrame(columns=("Coin", "Cny", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
@@ -49,7 +49,7 @@ for x in Coin[:int(Okex_Api._CoinLenth)]:
     ax1.xaxis.grid(True, which='major')
     ax1.yaxis.grid(True, which='major')
     line1=ax1.plot(DataFrame['Cny'], linewidth=1.0, color='blue')
-    ax1.legend(line1, ('%s-%d%s'%(x,Okex_Api._Lenth,str(Okex_Api._KlineChosen)[1:]),))
+    ax1.legend(line1, ('%s-%d %s'%(x,Okex_Api._Lenth,str(Okex_Api._KlineChosen)),))
     ax2 = plt.subplot(312)
     ax2.xaxis.grid(True, which='major')
     ax2.yaxis.grid(True, which='major')
