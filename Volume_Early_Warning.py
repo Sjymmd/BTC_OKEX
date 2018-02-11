@@ -74,8 +74,8 @@ class Okex_Api:
         Volume = data.iloc[:, 5].apply(pd.to_numeric)
         Volume_Mean = round(Volume.mean()/1000,2)
         Volume_Pre  = round(Volume[self._Lenth-2]/1000,2)
-        Volume_Pre_P = round((Volume[self._Lenth-2]/Volume[self._Lenth-3]),2)
-        Volume_Inc = round(((Volume_Pre-Volume_Mean)/Volume_Mean),2)
+        Volume_Pre_P = int(((Volume[self._Lenth-2]/Volume[self._Lenth-3])-1)*100)
+        Volume_Inc = int(((Volume_Pre-Volume_Mean)/Volume_Mean)*100)
         return Cny,Increase,Volume_Mean,Volume_Pre,Volume_Pre_P,Volume_Inc
 
     def GetDataframe(self,DataFrame,Coin):
@@ -116,8 +116,9 @@ def Run(default = True):
         DataFrame =DataFrame.drop_duplicates(['Coin'])
         DataFrame = DataFrame.sort_values(by='_VolumeS', ascending=False)
         DataFrame=DataFrame.reset_index(drop=True)
-        for x in DataFrame.index:
-            DataFrame.iloc[x, 6] = str('%.2f' % DataFrame.iloc[x, 6] + '%')
+        for x in (DataFrame.index):
+            for columns in (-2,-1):
+                DataFrame.iloc[x, columns] = str('%.2f' % DataFrame.iloc[x, columns] + '%')
         if DataFrame.empty:
             print('没有符合的币种')
         else:
