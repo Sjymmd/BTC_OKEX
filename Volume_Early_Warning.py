@@ -87,11 +87,15 @@ class Okex_Api:
 
 def Run(default = True):
         Main = Okex_Api()
-        Coin = Main.GetCoin()
-        now = datetime.datetime.now()
-        now = now.strftime('%Y-%m-%d %H:%M:%S')
-        print(now)
-        StartTime = time.time()
+        try:
+            Coin = Main.GetCoin()
+            now = datetime.datetime.now()
+            now = now.strftime('%Y-%m-%d %H:%M:%S')
+            print(now)
+            StartTime = time.time()
+        except:
+            time.sleep(5)
+            print('MainGetCoin_Error')
         if default :
             Main.Input()
         else:
