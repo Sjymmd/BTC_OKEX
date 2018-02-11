@@ -118,7 +118,7 @@ def Run(default = True):
         DataFrame=DataFrame.reset_index(drop=True)
         for x in (DataFrame.index):
             for columns in (-2,-1):
-                DataFrame.iloc[x, columns] = str('%' % DataFrame.iloc[x, columns] + '%')
+                DataFrame.iloc[x, columns] = str('%d' % DataFrame.iloc[x, columns] + '%')
         if DataFrame.empty:
             print('没有符合的币种')
         else:
