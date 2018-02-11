@@ -27,7 +27,7 @@ class Okex_Api:
     def __init__(self):
         self._Kline={'1min':'1min','3min':'3min','5min':'5min','15min':'15min','30min':'30min','1day':'1day','3day':'3day','1week':'1week','1hour':'1hour','2hour':'2hour','4hour':'4hour','6hour':'6hour','12hour':'12hour'}
         self._Lenth = 24
-        self._KlineChose = '1hour'
+        self._KlineChosen = '1hour'
         self._Watch_Coin = 'snt'
         self._USDT_CNY = okcoinfuture.exchange_rate()['rate']
 
@@ -35,7 +35,7 @@ class Okex_Api:
         Str = '\n'.join(self._Kline.values())
         Input_Kline = input('输入时间区间,选择如下\n %s\n(default 1hour):'%Str)
         if Input_Kline:
-            self._KlineChose = self._Kline[Input_Kline]
+            self._KlineChosen = self._Kline[Input_Kline]
         Input_Num = input('输入数量(default 24):')
         if Input_Num:
             self._Lenth = Input_Num
@@ -66,7 +66,7 @@ class Okex_Api:
         return Coin
 
     def GetKline(self,Coin):
-        data = pd.DataFrame(okcoinSpot.getKline(self._Kline[self._KlineChose], self._Lenth, '0', Coin)).iloc[:, ]
+        data = pd.DataFrame(okcoinSpot.getKline(self._Kline[self._KlineChosen], self._Lenth, '0', Coin)).iloc[:, ]
         Increase = (float(data.iloc[self._Lenth - 1, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
         Increase = str('%.2f'%(Increase)+'%')
         price = float(data.iloc[self._Lenth - 1, 4])

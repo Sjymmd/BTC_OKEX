@@ -7,11 +7,11 @@ Okex_Api = Okex_Api()
 # Coin = Okex_Api.GetCoin()
 Coin = ['btc_usdt','snt_usdt']
 Okex_Api._CoinLenth = len(Coin)
-Okex_Api._KlineChose = '1 day'
+Okex_Api._KlineChosen = '1day'
 Okex_Api._Lenth = 24*100
 for x in Coin[:int(Okex_Api._CoinLenth)]:
     DataFrame = pd.DataFrame(columns=("Coin", "Cny", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
-    data = pd.DataFrame(okcoinSpot.getKline(Okex_Api._Kline[Okex_Api._KlineChose], Okex_Api._Lenth, '0', x)).iloc[:Okex_Api._Lenth-1, ]
+    data = pd.DataFrame(okcoinSpot.getKline(Okex_Api._Kline[Okex_Api._KlineChosen], Okex_Api._Lenth, '0', x)).iloc[:Okex_Api._Lenth-1, ]
     Increase = (float(data.iloc[0, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
     price = float(data.iloc[0, 4])
     Cny = round(price * Okex_Api._USDT_CNY, 2)
@@ -49,7 +49,7 @@ for x in Coin[:int(Okex_Api._CoinLenth)]:
     ax1.xaxis.grid(True, which='major')
     ax1.yaxis.grid(True, which='major')
     line1=ax1.plot(DataFrame['Cny'], linewidth=1.0, color='blue')
-    ax1.legend(line1, ('%s-%d%s'%(x,Okex_Api._Lenth,str(Okex_Api._KlineChose)[1:]),))
+    ax1.legend(line1, ('%s-%d%s'%(x,Okex_Api._Lenth,str(Okex_Api._KlineChosen)[1:]),))
     ax2 = plt.subplot(312)
     ax2.xaxis.grid(True, which='major')
     ax2.yaxis.grid(True, which='major')
