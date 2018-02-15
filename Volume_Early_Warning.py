@@ -17,8 +17,8 @@ import warnings
 warnings.filterwarnings("ignore")
 #
 okcoinRESTURL = 'www.okex.com'
-apikey='1f74f0f9-54c2-4e1c-b653-3b3d2b2995d8'
-secretkey='A04BBDEDC2B0B4436D853AA90BD4DD2B'
+apikey='ca785f62-8a86-4ad2-8ebd-173da8217a4c'
+secretkey='ADAE3F37C1E1DA1F8C5999FDE68FC2B6'
 okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
 okcoinfuture = OKCoinFuture(okcoinRESTURL, apikey, secretkey)
 #
@@ -30,6 +30,7 @@ class Okex_Api:
         self._KlineChosen = '1hour'
         self._Watch_Coin = 'snt'
         self._USDT_CNY = okcoinfuture.exchange_rate()['rate']
+        self._EndLenth = 0
 
     def Input(self):
         Str = '\n'.join(self._Kline.values())
@@ -66,17 +67,26 @@ class Okex_Api:
         return Coin
 
     def GetKline(self,Coin):
-        data = pd.DataFrame(okcoinSpot.getKline(self._Kline[self._KlineChosen], self._Lenth, '0', Coin)).iloc[:, ]
-        Increase = (float(data.iloc[self._Lenth - 1, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
-        Increase = str('%.2f'%(Increase)+'%')
-        price = float(data.iloc[self._Lenth - 1, 4])
-        Cny = round(price*self._USDT_CNY,2)
-        Volume = data.iloc[:, 5].apply(pd.to_numeric)
-        Volume_Mean = round(Volume.mean()/1000,2)
-        Volume_Pre  = round(Volume[self._Lenth-2]/1000,2)
-        Volume_Pre_P = int(((Volume[self._Lenth-2]/Volume[self._Lenth-3])-1)*100)
-        Volume_Inc = int(((Volume_Pre-Volume_Mean)/Volume_Mean)*100)
-        return Cny,Increase,Volume_Mean,Volume_Pre,Volume_Pre_P,Volume_Inc
+        data = pd.DataFrame(okcoinSpot.getKline(self._Kline[self._KlineChosen], self._Lenth, self._EndLenth, Coin)).iloc[:, ]
+        data = data.iloc[:-1,:]
+        data[5] = data[5].apply(pd.to_numeric)
+        if data.iloc[-1, 5] < 1000:
+            print('上一小时成交量小于1K不计数')
+            return 0,0,0,0,0,0
+        else:
+            data = data[data[5]>=1000]
+            data.reset_index(drop=True)
+            Increase = (float(data.iloc[ -1, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
+            Increase = str('%.2f'%(Increase)+'%')
+            price = float(data.iloc[- 1, 4])
+            Cny = round(price*self._USDT_CNY,2)
+            Volume = data[5]
+            # Volume = data.iloc[:, 5].apply(pd.to_numeric)
+            Volume_Mean = round(Volume.mean()/1000,2)
+            Volume_Pre  = round(Volume.iloc[-1]/1000,2)
+            Volume_Pre_P = int(((Volume.iloc[-1]/Volume.iloc[-2])-1)*100)
+            Volume_Inc = int(((Volume_Pre-Volume_Mean)/Volume_Mean)*100)
+            return Cny,Increase,Volume_Mean,Volume_Pre,Volume_Pre_P,Volume_Inc
 
     def GetDataframe(self,DataFrame,Coin):
         Cny, Increase, Volume_Mean, Volume_Pre, Volume_Pre_P,Volume_Inc = self.GetKline(Coin)
@@ -122,13 +132,14 @@ def Run(default = True):
         DataFrame=DataFrame.reset_index(drop=True)
         for x in (DataFrame.index):
             for columns in (-2,-1):
-                DataFrame.iloc[x, columns] = str('%d' % DataFrame.iloc[x, columns] + '%')
+                DataFrame.iloc[x, columns] = str('%d' %DataFrame.iloc[x, columns] + '%')
         if DataFrame.empty:
             print('没有符合的币种')
         else:
             print(DataFrame)
         EndTime = time.time()
         print('Using_Time: %d sec'%int(EndTime - StartTime))
+
 if __name__=='__main__':
 
     def job():
@@ -143,3 +154,5 @@ if __name__=='__main__':
             print('定时任务出错')
             time.sleep(20)
             continue
+
+
