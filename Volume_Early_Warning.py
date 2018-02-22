@@ -71,7 +71,7 @@ class Okex_Api:
         data = data.iloc[:-1,:]
         data[5] = data[5].apply(pd.to_numeric)
         if data.iloc[-1, 5] < 1000:
-            print('上一小时成交量小于1K不计数')
+            # print('上一小时成交量小于1K不计数')
             return 0,0,0,0,0,0
         else:
             data = data[data[5]>=1000]
