@@ -77,6 +77,7 @@ def Get_Dataframe(Coin):
         return DataFrame
         # print(DataFrame)
     except:
+        time.sleep(5)
         print('%sError'%Coin)
 
 class TWStock():
@@ -344,9 +345,10 @@ if __name__ == '__main__':
 
     # Coin = ['snt_usdt']
     for x in Coin[:int(Okex_Api._CoinLenth)]:
-
         try:
             DataFrame = Get_Dataframe(x)
+            if DataFrame.empty is True:
+                break
             Data = DataFrame.iloc[:, 1:]
             lenth = int(len(Data) * 5 / 6)
             STEP = lenth - 1
@@ -357,7 +359,10 @@ if __name__ == '__main__':
             # y = open("./TXT/%s.txt"%x, "w")
             # y.close()
             # fo = open("./TXT/%s.txt"%x, "a")
+            tf.reset_default_graph()
+            print(x)
             main()
+
         except:
             continue
 
