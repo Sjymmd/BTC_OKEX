@@ -11,6 +11,9 @@ import cv2
 import time
 import matplotlib.image as pimg
 
+from sklearn import preprocessing
+scaler = preprocessing.StandardScaler()
+
 from Volume_Early_Warning import *
 import pandas as pd
 from OkcoinSpotAPI import *
@@ -76,32 +79,6 @@ def Get_Dataframe(Coin):
     except:
         print('%sError'%Coin)
 
-
-# stock_data.reverse() # 反轉資料
-# my_train = np.zeros((len(DataFrame) - day_len, day_len), dtype=np.float)
-# # my_train
-# my_img = np.zeros((len(my_train), 64, 64), dtype=np.float)
-# my_img
-
-'''for li in range(0, len(my_train)):
-    if(min(my_train[li])<min_y):
-        min_y= min(my_train[li])
-    if (max(my_train[li])>max_y):  
-        max_y=max(my_train[li])
-'''
-# print("axis y draw min "+str(min_y)+", max "+str(max_y))
-'''
-for x in xrange(0,len(my_train)):#save file
-    print(x)
-    plt.figure()
-    plt.plot(my_train[x],label='close',linewidth=5)
-    plt.axis([0, 14, min_y, max_y])
-    plt.savefig('/home/kim/Desktop/Data_DQN/2330_2011/'+str(x)+'.png')
-'''
-
-
-
-
 class TWStock():
     def __init__(self, stock_data):
         self.stock_data = stock_data
@@ -149,11 +126,6 @@ def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                           strides=[1, 2, 2, 1], padding='SAME')
 
-
-# ### 載入資料
-
-# In[10]:
-
 # Hyper Parameters for DQN
 GAMMA = 0.9  # discount factor for target Q
 INITIAL_EPSILON = 0.5  # starting value of epsilon
@@ -165,6 +137,8 @@ BATCH_SIZE = 32  # size of minibatch
 class DQN():
     # DQN Agent
     def __init__(self, env):
+
+        self.dueling = True
         # init experience replay
         self.replay_buffer = deque()
 
@@ -290,8 +264,8 @@ class DQN():
 
 
 # Hyper Parameters
-EPISODE = 10000  # Episode limitation
-STEP = 1000  # 300 # Step limitation in an episode
+EPISODE = 200  # Episode limitation
+# 300 # Step limitation in an episode
 TEST = 1  # The number of experiment test every 100 episode
 
 
@@ -335,7 +309,7 @@ def main():
 
         rate = round(p / (n * (-1) + p), 2)
         rate_string += str(rate) + " "
-        fo.write(out + "\n")
+        # fo.write(out + "\n")
         train_output += str(train_reward) + " "
         # Test every 100 episodes
         if episode % 10 == 0:
@@ -354,31 +328,71 @@ def main():
                     total_reward += reward
                     if done:
                         break
-            fo.write(out + "\n")
+            # fo.write(out + "\n")
             ave_reward = total_reward / TEST
             print(train_output)
             train_output = ""
             print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
             rate_string = ""
-            if ave_reward >= 20000:
-                print('End')
-                break
+            # if ave_reward >= 1000:
+            #     print('End')
+            #     break
+
 
 
 if __name__ == '__main__':
 
+    # Coin = ['snt_usdt']
     for x in Coin[:int(Okex_Api._CoinLenth)]:
+
         try:
             DataFrame = Get_Dataframe(x)
             Data = DataFrame.iloc[:, 1:]
             lenth = int(len(Data) * 5 / 6)
+            STEP = lenth - 1
             Train = Data.iloc[:lenth, ]
-            my_train = Train.as_matrix()
+            my_train = scaler.fit_transform(Train)
             Test = Data.iloc[lenth:, ]
-            my_test = Train.as_matrix()
-            y = open("%s.txt"%x, "w")
-            y.close()
-            fo = open("%s.txt"%x, "a")
+            my_test = scaler.fit_transform(Test)
+            # y = open("./TXT/%s.txt"%x, "w")
+            # y.close()
+            # fo = open("./TXT/%s.txt"%x, "a")
             main()
         except:
             continue
+
+    Coin = ['btc_usdt']
+    scaler = preprocessing.StandardScaler()
+    scaler_Price = preprocessing.StandardScaler()
+    for x in Coin:
+        TestData = Get_Dataframe(Coin)
+        TestData = TestData.iloc[:, 1:]
+
+        TestPrice = TestData.iloc[:, 0]
+        TestPrice = TestPrice.reshape(-1,1)
+        TestPrice = scaler_Price.fit_transform(TestPrice)
+
+        TestData_Initial = TestData.as_matrix()
+        TestData = scaler.fit_transform(TestData_Initial)
+
+        env1 = TWStock(TestData)
+        state = env1.reset()
+        agent = DQN(env1)
+        Cny = 1000
+        Coin = 0
+        for i in range(len(TestData)-1):
+            env1.render()
+            action = agent.action(state)  # direct action for test
+            state, reward, done, _ = env1.step(action)
+            Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
+            Price = round(Price[0][0],2)
+            if action == 1 and done is False and Cny>0:
+                print('Buy',i,Price,Cny +Coin*Price-1000)
+                Coin = Cny/Price
+                Cny = 0
+            elif action ==2 and Coin >0 and done is False:
+                Cny = Coin * Price
+                Coin = 0
+                print('Sell', i, Price,Cny +Coin*Price-1000)
+        profit = Cny +Coin*Price-1000
+        print('Profit:%d'%profit)
