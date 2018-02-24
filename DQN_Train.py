@@ -150,6 +150,7 @@ def Main():
 if __name__ == '__main__':
 
     # Coin = ['snt_usdt']
+    StartTime = time.time()
     for x in Coin[:int(Okex_Api._CoinLenth)]:
         try:
             DataFrame = Get_Dataframe(x)
@@ -170,9 +171,10 @@ if __name__ == '__main__':
             tf.reset_default_graph()
             print(x)
             Main()
-
         except:
             continue
+    EndTime = time.time()
+    print('Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
     from DQN_Select import *
     DQN_Select = DQN_Select()
