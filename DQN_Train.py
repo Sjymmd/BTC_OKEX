@@ -111,9 +111,14 @@ def Main():
                 n += float(anal[x])
 
         rate = round(p / (n * (-1) + p), 2)
+
+        train_output = ""
+        rate_string = ""
+        
         rate_string += str(rate) + " "
         # fo.write(out + "\n")
         train_output += str(train_reward) + " "
+
         # Test every 100 episodes
         if episode % 10 == 0:
             out = "test\n"
@@ -133,10 +138,11 @@ def Main():
                         break
             # fo.write(out + "\n")
             ave_reward = total_reward / TEST
-            print(train_output)
-            train_output = ""
-            print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
-            rate_string = ""
+
+            # print(train_output)
+            # train_output = ""
+            # print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
+            # rate_string = ""
             # if ave_reward >= 1000:
             #     print('End')
             #     break
