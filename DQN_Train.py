@@ -154,7 +154,8 @@ if __name__ == '__main__':
         try:
             DataFrame = Get_Dataframe(x)
             # print(DataFrame)
-            if DataFrame.empty is True:
+            if len(DataFrame) < 1000:
+                print('%s less than 1000 lines' % x)
                 continue
             Data = DataFrame.iloc[:, 1:]
             lenth = int(len(Data) * 5 / 6)
