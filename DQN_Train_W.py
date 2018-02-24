@@ -1,23 +1,28 @@
 # coding: utf-8
-from DQN_Model import *
+from __future__ import division
 
 from sklearn import preprocessing
-scaler = preprocessing.StandardScaler()
-
+from DQN_Model_W import *
 from Volume_Early_Warning import *
 import pandas as pd
 from OkcoinSpotAPI import *
 import matplotlib.pyplot as plt
+from fractions import Fraction
 import warnings
+
 warnings.filterwarnings("ignore")
 Okex_Api = Okex_Api()
 Coin = Okex_Api.GetCoin()
 # Coin = ['snt_usdt']
 Okex_Api._CoinLenth = len(Coin)
 Okex_Api._KlineChosen = '1hour'
-Okex_Api._Lenth = 24*1000
+Okex_Api._Lenth = 24*100
 Okex_Api._EndLenth = 0
-
+# now = datetime.datetime.now()
+# now = now.strftime('%Y-%m-%d %H:%M:%S')
+# print(now)
+names = locals()
+StartTime = time.time()
 
 def Get_Dataframe(Coin):
     try:
@@ -67,10 +72,69 @@ def Get_Dataframe(Coin):
         time.sleep(5)
         print('%sError'%Coin)
 
+# ---------------------------------------------------------
+
+
+# ## main function
+
+
 # Hyper Parameters
-EPISODE = 200  # Episode limitation
+EPISODE = 2000  # Episode limitation
 # 300 # Step limitation in an episode
 TEST = 1  # The number of experiment test every 100 episode
+
+def TestBack():
+    Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
+    # Coin = ['btc_usdt','snt_usdt','eth_usdt']
+    DataLen = []
+    for x in Coin:
+        scaler = preprocessing.StandardScaler()
+        TestData = Get_Dataframe(x)
+        TestData = TestData.iloc[:, 1:]
+        TestData_Initial = TestData.as_matrix()
+        names['TestPrice%s' % x] = TestData.iloc[:, 0]
+        names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
+        names['TestData%s' % x] = scaler.fit_transform(TestData_Initial)
+        DataLen.append(names['TestData%s' % x].shape[0])
+    lenData = min(DataLen)
+    Tem = names['TestData%s' % Coin[0]]
+    names['TestData%s' % Coin[0]] = Tem[:lenData]
+    Data = names['TestData%s' % Coin[0]]
+    for x in Coin[1:]:
+        Tem = names['TestData%s' % x]
+        names['TestData%s' % x] = Tem[:lenData]
+        Data = np.column_stack((Data, names['TestData%s' % x]))
+
+    env1 = TWStock(Data)
+    state = env1.reset()
+    agent = DQN(env1)
+
+    Cny = 1000
+    for x in Coin:
+        names['Amount%s' % x] = 0
+    for i in range(len(Data) - 1):
+        env1.render()
+        action = agent.action(state)  # direct action for test
+        state, reward, done, _ = env1.step(action)
+
+        CoinName = Coin[int(action / 3)]
+        Price = names['TestPrice%s' % CoinName][i]
+        # Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
+        Price = round(Price[0], 2)
+        if action % 3 == 1 and done is False and Cny > 0:
+            print('Buy %s' % CoinName, 'Time', i, 'Price', Price)
+            names['Amount%s' % CoinName] = Cny / Price
+            Cny = 0
+        elif action % 3 == 2 and names['Amount%s' % CoinName] > 0 and done is False:
+            Cny = names['Amount%s' % CoinName] * Price
+            names['Amount%s' % CoinName] = 0
+            print('Sell %s' % CoinName, 'Time', i, 'Price', Price, 'Current_Profit', Cny - 1000)
+    CoinPrice = 0
+    for x in Coin:
+        CoinPrice += names['TestPrice%s' % x][-1] * names['Amount%s' % x]
+        print('Amount%s' % x, names['Amount%s' % x])
+    profit = Cny + CoinPrice - 1000
+    print('Profit:%d' % profit)
 
 def Main():
     # initialize OpenAI Gym env and dqn agent
@@ -139,9 +203,9 @@ def Main():
             # fo.write(out + "\n")
             ave_reward = total_reward / TEST
 
-            # print(train_output)
+            print(train_output)
             # train_output = ""
-            # print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
+            print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
             # rate_string = ""
             # if ave_reward >= 1000:
             #     print('End')
@@ -150,38 +214,33 @@ def Main():
     print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
 
 
-
-
-
 if __name__ == '__main__':
 
-    # Coin = ['snt_usdt']
+    Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
     StartTime = time.time()
-    for x in Coin[:int(Okex_Api._CoinLenth)]:
-        try:
-            DataFrame = Get_Dataframe(x)
-            # print(DataFrame)
-            if len(DataFrame) < 1000:
-                print('%s less than 1000 lines' % x)
-                continue
-            Data = DataFrame.iloc[:, 1:]
-            lenth = int(len(Data) * 5 / 6)
-            STEP = lenth - 1
-            Train = Data.iloc[:lenth, ]
-            my_train = scaler.fit_transform(Train)
-            Test = Data.iloc[lenth:, ]
-            my_test = scaler.fit_transform(Test)
-            # y = open("./TXT/%s.txt"%x, "w")
-            # y.close()
-            # fo = open("./TXT/%s.txt"%x, "a")
-            tf.reset_default_graph()
-            print(x)
-            Main()
-        except:
-            continue
+    DataLen = []
+    for x in Coin:
+        scaler = preprocessing.StandardScaler()
+        TestData = Get_Dataframe(x)
+        TestData = TestData.iloc[:, 1:]
+        TestData_Initial = TestData.as_matrix()
+        names['TestData%s' %x] = scaler.fit_transform(TestData_Initial)
+        DataLen.append(names['TestData%s' %x].shape[0])
+    lenData = min(DataLen)
+    Tem = names['TestData%s' % Coin[0]]
+    names['TestData%s' % Coin[0]] = Tem[:lenData]
+    Data = names['TestData%s' % Coin[0]]
+    for x in Coin[1:]:
+        Tem = names['TestData%s' %x]
+        names['TestData%s' % x] = Tem[:lenData]
+        Data = np.column_stack((Data, names['TestData%s' % x]))
+    lenth = int(Data.shape[0] * 5 / 6)
+    STEP = lenth - 1
+    my_train = Data[:lenth]
+    my_test = Data[lenth:]
+    tf.reset_default_graph()
+    Main()
     EndTime = time.time()
     print('Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
-    from DQN_Select import *
-    DQN_Select = DQN_Select()
-    DQN_Select.DQN_Select()
+    # TestBack()
