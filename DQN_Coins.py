@@ -25,12 +25,9 @@ Coin = Okex_Api.GetCoin()
 # Coin = ['snt_usdt']
 Okex_Api._CoinLenth = len(Coin)
 Okex_Api._KlineChosen = '1hour'
-Okex_Api._Lenth = 24*100
+Okex_Api._Lenth = 24*1000
 Okex_Api._EndLenth = 0
-# now = datetime.datetime.now()
-# now = now.strftime('%Y-%m-%d %H:%M:%S')
-# print(now)
-StartTime = time.time()
+
 
 def Get_Dataframe(Coin):
     try:
@@ -163,8 +160,8 @@ class DQN():
         checkpoint = tf.train.get_checkpoint_state("saved_networks")
         if checkpoint and checkpoint.model_checkpoint_path:
             self.saver.restore(self.session, checkpoint.model_checkpoint_path)
-            print(
-            "Successfully loaded:", checkpoint.model_checkpoint_path)
+            # print(
+            # "Successfully loaded:", checkpoint.model_checkpoint_path)
         else:
             print
             ("Could not find old network weights")
@@ -182,7 +179,6 @@ class DQN():
         h_layer = tf.nn.relu(tf.matmul(self.state_input,W1) + b1)
         # Q Value layer
         self.Q_value = tf.matmul(h_layer,W2) + b2
-
 
     def create_training_method(self):
         self.action_input = tf.placeholder("float", [None, self.action_dim])
@@ -344,60 +340,89 @@ def main():
 if __name__ == '__main__':
 
     # Coin = ['snt_usdt']
-    for x in Coin[:int(Okex_Api._CoinLenth)]:
-        try:
-            DataFrame = Get_Dataframe(x)
-            if DataFrame.empty is True:
-                break
-            Data = DataFrame.iloc[:, 1:]
-            lenth = int(len(Data) * 5 / 6)
-            STEP = lenth - 1
-            Train = Data.iloc[:lenth, ]
-            my_train = scaler.fit_transform(Train)
-            Test = Data.iloc[lenth:, ]
-            my_test = scaler.fit_transform(Test)
-            # y = open("./TXT/%s.txt"%x, "w")
-            # y.close()
-            # fo = open("./TXT/%s.txt"%x, "a")
-            tf.reset_default_graph()
-            print(x)
-            main()
+    # for x in Coin[:int(Okex_Api._CoinLenth)]:
+    #     try:
+    #         DataFrame = Get_Dataframe(x)
+    #         if DataFrame.empty is True:
+    #             break
+    #         Data = DataFrame.iloc[:, 1:]
+    #         lenth = int(len(Data) * 5 / 6)
+    #         STEP = lenth - 1
+    #         Train = Data.iloc[:lenth, ]
+    #         my_train = scaler.fit_transform(Train)
+    #         Test = Data.iloc[lenth:, ]
+    #         my_test = scaler.fit_transform(Test)
+    #         # y = open("./TXT/%s.txt"%x, "w")
+    #         # y.close()
+    #         # fo = open("./TXT/%s.txt"%x, "a")
+    #         tf.reset_default_graph()
+    #         print(x)
+    #         main()
+    #     except:
+    #         continue
 
+    Coin = ['btc_usdt','snt_usdt']
+    # Okex_Api._KlineChosen = '15min'
+    # now = datetime.datetime.now()
+    # now = now.strftime('%Y-%m-%d %H:%M:%S')
+    # print(now)
+    StartTime = time.time()
+    Count = 0
+    Profit_Total=0
+    DataFrame = pd.DataFrame(
+        columns=("Coin", "Profit"))
+    for x in Coin:
+        try:
+            scaler = preprocessing.StandardScaler()
+            scaler_Price = preprocessing.StandardScaler()
+            TestData = Get_Dataframe(x)
+            if len(TestData)<1000:
+                print('%s less than 1000 lines'%x)
+                continue
+            else:
+                Count +=1
+            TestData = TestData.iloc[:, 1:]
+
+            TestPrice = TestData.iloc[:, 0]
+            TestPrice = TestPrice.reshape(-1,1)
+            TestPrice = scaler_Price.fit_transform(TestPrice)
+
+            TestData_Initial = TestData.as_matrix()
+            TestData = scaler.fit_transform(TestData_Initial)
+            tf.reset_default_graph()
+            env1 = TWStock(TestData)
+            state = env1.reset()
+            agent = DQN(env1)
+            Cny = 1000
+            Coin = 0
+            for i in range(len(TestData)-1):
+                env1.render()
+                action = agent.action(state)  # direct action for test
+                state, reward, done, _ = env1.step(action)
+                Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
+                Price = round(Price[0][0],2)
+                if action == 1 and done is False and Cny>0:
+                    # print('Buy','Time',i,'Price',Price)
+                    Coin = Cny/Price
+                    Cny = 0
+                elif action ==2 and Coin >0 and done is False:
+                    Cny = Coin * Price
+                    Coin = 0
+                    # print('Sell','Time',i,'Price', Price,'Current_Profit',Cny +Coin*Price-1000)
+            profit = Cny +Coin*Price-1000
+            Timeshrft = pd.Series({'Coin': x, 'Profit': profit})
+            DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
+            print('%s Profit:%d'%(x,profit))
         except:
             continue
-
-    Coin = ['btc_usdt']
-    scaler = preprocessing.StandardScaler()
-    scaler_Price = preprocessing.StandardScaler()
-    for x in Coin:
-        TestData = Get_Dataframe(Coin)
-        TestData = TestData.iloc[:, 1:]
-
-        TestPrice = TestData.iloc[:, 0]
-        TestPrice = TestPrice.reshape(-1,1)
-        TestPrice = scaler_Price.fit_transform(TestPrice)
-
-        TestData_Initial = TestData.as_matrix()
-        TestData = scaler.fit_transform(TestData_Initial)
-
-        env1 = TWStock(TestData)
-        state = env1.reset()
-        agent = DQN(env1)
-        Cny = 1000
-        Coin = 0
-        for i in range(len(TestData)-1):
-            env1.render()
-            action = agent.action(state)  # direct action for test
-            state, reward, done, _ = env1.step(action)
-            Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
-            Price = round(Price[0][0],2)
-            if action == 1 and done is False and Cny>0:
-                print('Buy',i,Price,Cny +Coin*Price-1000)
-                Coin = Cny/Price
-                Cny = 0
-            elif action ==2 and Coin >0 and done is False:
-                Cny = Coin * Price
-                Coin = 0
-                print('Sell', i, Price,Cny +Coin*Price-1000)
-        profit = Cny +Coin*Price-1000
-        print('Profit:%d'%profit)
+        Profit_Total +=profit
+        AvgProfit = profit/Count
+    DataFrame = DataFrame.sort_values(by='Profit', ascending=False)
+    DataFrame = DataFrame.reset_index(drop=True)
+    EndTime = time.time()
+    print('Using_Time: %d min' % int((EndTime - StartTime) / 60))
+    print('TotalProfit',Profit_Total,'AvgProfit',AvgProfit)
+    # print(DataFrame.iloc[:5,0].values)
+    DataFrame.to_csv('Coin_Select.txt',index=False)
+    DataFrame_Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5,0].values
+    print(DataFrame_Coin[1])
