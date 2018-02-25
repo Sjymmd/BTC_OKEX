@@ -85,7 +85,7 @@ class DQN():
         # self.state_dim = env.observation_space.shape[0]
         # self.action_dim = env.action_space.n
 
-        self.state_dim = int(len(pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values)*8)
+        self.state_dim = int(len(np.loadtxt("Coin_Select.txt", dtype=np.str))*8)
         self.action_dim =int(self.state_dim/8*3)
 
         self.create_Q_network()
