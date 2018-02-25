@@ -73,8 +73,21 @@ def Get_Dataframe(Coin):
         print('%sError'%Coin)
 
 # ---------------------------------------------------------
+def Coin_Select(Coin):
+    for x in Coin:
+        try:
+            TestData = Get_Dataframe(x)
+            if len(TestData) < 1000:
+                Coin.remove(x)
+                print('%s less than 1000 lines' % x)
+                continue
+        except:
+            Coin.remove(x)
+            continue
 
-
+    np.savetxt("Coin_Select.txt", Coin,delimiter=" ", fmt="%s")
+    Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
+    print(len(Coin))
 # ## main function
 
 
@@ -144,7 +157,7 @@ def Main():
     env = TWStock(my_train)
     agent = DQN(env)
 
-    print('Start')
+    print('Start Training...')
     train_output = ""
     rate_string = ""
     for episode in range(EPISODE):
@@ -217,7 +230,9 @@ def Main():
 
 if __name__ == '__main__':
 
-    # Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
+    # Coin_Select(Coin)
+
+    print('Start Loading Data...')
     Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
     StartTime = time.time()
     DataLen = []
@@ -241,8 +256,12 @@ if __name__ == '__main__':
     my_train = Data[:lenth]
     my_test = Data[lenth:]
     tf.reset_default_graph()
+    EndTime = time.time()
+    print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+
+    StartTime = time.time()
     Main()
     EndTime = time.time()
-    print('Using_Time: %d min' % int((EndTime - StartTime) / 60))
+    print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
     # TestBack()
