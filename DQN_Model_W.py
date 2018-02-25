@@ -1,6 +1,5 @@
 # coding: utf-8
 from __future__ import division
-
 import tensorflow as tf
 import numpy as np
 import random
@@ -17,7 +16,6 @@ class TWStock():
         self.stock_index = 0
 
     def render(self):
-        # 尚未實作
         return
 
     def reset(self):
@@ -26,7 +24,6 @@ class TWStock():
         return self.stock_data[self.stock_index]
         # return TestMatrix
 
-    # 0: 觀望, 1: 持有多單, 2: 持有空單
     def step(self, action):
         self.stock_index += 1
         if action % 3 == 0:

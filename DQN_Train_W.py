@@ -16,7 +16,7 @@ Coin = Okex_Api.GetCoin()
 # Coin = ['snt_usdt']
 Okex_Api._CoinLenth = len(Coin)
 Okex_Api._KlineChosen = '1hour'
-Okex_Api._Lenth = 24*100
+Okex_Api._Lenth = 24*1000
 Okex_Api._EndLenth = 0
 # now = datetime.datetime.now()
 # now = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -84,8 +84,9 @@ EPISODE = 2000  # Episode limitation
 TEST = 1  # The number of experiment test every 100 episode
 
 def TestBack():
-    Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
+    # Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
     # Coin = ['btc_usdt','snt_usdt','eth_usdt']
+    Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
     DataLen = []
     for x in Coin:
         scaler = preprocessing.StandardScaler()
@@ -216,7 +217,8 @@ def Main():
 
 if __name__ == '__main__':
 
-    Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
+    # Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
+    Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
     StartTime = time.time()
     DataLen = []
     for x in Coin:
