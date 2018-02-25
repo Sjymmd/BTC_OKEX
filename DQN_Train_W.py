@@ -70,13 +70,14 @@ def Get_Dataframe(Coin):
         # print(DataFrame)
     except:
         time.sleep(5)
-        print('%sError'%Coin)
+        print('%s error'%Coin)
 
 # ---------------------------------------------------------
 def Coin_Select(Coin):
     for x in Coin:
         try:
             TestData = Get_Dataframe(x)
+
             if len(TestData) < 1000:
                 Coin.remove(x)
                 print('%s less than 1000 lines' % x)
@@ -84,6 +85,7 @@ def Coin_Select(Coin):
         except:
             Coin.remove(x)
             continue
+
 
     np.savetxt("Coin_Select.txt", Coin,delimiter=" ", fmt="%s")
     Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
