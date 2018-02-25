@@ -201,8 +201,6 @@ def Main():
             out = "test\n"
             env1 = TWStock(my_test)
             total_reward = 0
-            train_output = ""
-            rate_string = ""
             for i in range(TEST):
                 state = env1.reset()
 
@@ -218,14 +216,13 @@ def Main():
             ave_reward = total_reward / TEST
 
             print(train_output)
-            # train_output = ""
+            train_output = ""
             print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
-            # rate_string = ""
+            rate_string = ""
             # if ave_reward >= 1000:
             #     print('End')
             #     break
-    print('Train_Output',train_output)
-    print('episode: ', episode, 'Evaluation Average Reward:', ave_reward, 'training Rate past10:', rate_string)
+
 
 
 if __name__ == '__main__':
