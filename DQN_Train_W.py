@@ -94,7 +94,7 @@ def Coin_Select(Coin):
 
 
 # Hyper Parameters
-EPISODE = 2000  # Episode limitation
+EPISODE = 100000  # Episode limitation
 # 300 # Step limitation in an episode
 TEST = 1  # The number of experiment test every 100 episode
 
