@@ -176,7 +176,7 @@ def Main():
             out += str(reward) + " "
             train_reward += reward
             # Define reward for agent
-            reward_agent = -1 if done else 0.1
+            # reward_agent = -1 if done else 0.1
             agent.perceive(state, action, reward, next_state, done)
             state = next_state
             if done:
