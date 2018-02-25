@@ -192,9 +192,6 @@ def Main():
 
         rate = round(p / (n * (-1) + p), 2)
 
-        train_output = ""
-        rate_string = ""
-
         rate_string += str(rate) + " "
         # fo.write(out + "\n")
         train_output += str(train_reward) + " "
@@ -204,7 +201,8 @@ def Main():
             out = "test\n"
             env1 = TWStock(my_test)
             total_reward = 0
-
+            train_output = ""
+            rate_string = ""
             for i in range(TEST):
                 state = env1.reset()
 
