@@ -3,4 +3,5 @@ Hope Useful!
  Use `OKEX` API to make quantitative transactions
 ## Written by Python
     Recording something important
-* Volume_Early_Warning.py
+* DQN_Dueling.py
+* Model_DQN_Dueling.py
