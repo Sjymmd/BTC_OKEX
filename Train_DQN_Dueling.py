@@ -2,8 +2,7 @@
 from __future__ import division
 
 from sklearn import preprocessing
-# from DQN_Model_W import *
-from DQN_Dueling_Model import *
+from Model_DQN_Dueling import *
 from Volume_Early_Warning import *
 import pandas as pd
 from OkcoinSpotAPI import *

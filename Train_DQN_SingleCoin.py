@@ -1,5 +1,5 @@
 # coding: utf-8
-from DQN_Model import *
+from Model_DQN_SingleCoin import *
 
 from sklearn import preprocessing
 scaler = preprocessing.StandardScaler()
@@ -182,6 +182,6 @@ if __name__ == '__main__':
     EndTime = time.time()
     print('Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
-    from DQN_Select import *
+    from DQN_SingleCoin_Profit import *
     DQN_Select = DQN_Select()
     DQN_Select.DQN_Select()

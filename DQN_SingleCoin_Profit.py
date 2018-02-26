@@ -1,5 +1,5 @@
 # coding: utf-8
-from DQN_Model import *
+from Model_DQN_SingleCoin import *
 import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
