@@ -3,10 +3,8 @@ eos_usdt
 fair_usdt
 kcash_usdt
 ugc_usdt
-mot_usdt
 xem_usdt
 iota_usdt
-stc_usdt
 tnb_usdt
 iost_usdt
 dgb_usdt
@@ -20,7 +18,6 @@ btc_usdt
 btm_usdt
 smt_usdt
 rct_usdt
-gnt_usdt
 gnx_usdt
 mana_usdt
 snt_usdt
