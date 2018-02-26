@@ -108,8 +108,13 @@ def TestBack():
     for x in Coin:
         scaler = preprocessing.StandardScaler()
         while True:
-            TestData = Get_Dataframe(x)
-            if len(TestData)>=1000:
+            try:
+                TestData = Get_Dataframe(x)
+            except:
+                print('Get_Dataframe Error')
+                time.sleep(5)
+                continue
+            if TestData is not None:
                 break
             print('Get %s error'%x)
         TestData = TestData.iloc[:, 1:]
@@ -247,8 +252,13 @@ if __name__ == '__main__':
     for x in Coin:
         scaler = preprocessing.StandardScaler()
         while True:
-            TestData = Get_Dataframe(x)
-            if len(TestData)>=1000:
+            try:
+                TestData = Get_Dataframe(x)
+            except:
+                print('Get_Dataframe Error')
+                time.sleep(5)
+                continue
+            if TestData is not None:
                 break
             print('Get %s error'%x)
         TestData = TestData.iloc[:, 1:]
