@@ -271,48 +271,48 @@ if __name__ == '__main__':
 
     # Coin_Select(Coin)
 
-    # print('Start Loading Data...')
-    # Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
-    # StartTime = time.time()
-    # DataLen = []
-    # for x in Coin:
-    #     scaler = preprocessing.StandardScaler()
-    #     while True:
-    #         try:
-    #             TestData = Get_Dataframe(x)
-    #         except:
-    #             print('Get_Dataframe Error')
-    #             time.sleep(5)
-    #             continue
-    #         if TestData is not None:
-    #             break
-    #         print('Get %s error'%x)
-    #     TestData = TestData.iloc[:, 1:]
-    #     TestData_Initial = TestData.as_matrix()
-    #     names['TestData%s' %x] = scaler.fit_transform(TestData_Initial)
-    #     DataLen.append(names['TestData%s' %x].shape[0])
-    # lenData = min(DataLen)
-    # Tem = names['TestData%s' % Coin[0]]
-    # names['TestData%s' % Coin[0]] = Tem[int(len(Tem)-lenData):]
-    # Data = names['TestData%s' % Coin[0]]
-    # for x in Coin[1:]:
-    #     Tem = names['TestData%s' %x]
-    #     names['TestData%s' % x] = Tem[int(len(Tem)-lenData):]
-    #     Data = np.column_stack((Data, names['TestData%s' % x]))
-    # lenth = int(Data.shape[0] * 5 / 6)
-    # STEP = lenth - 1
-    # my_train = Data[:lenth]
-    # my_test = Data[lenth:]
-    #
-    #
-    # EndTime = time.time()
-    # print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
-    #
-    # StartTime = time.time()
-    # tf.reset_default_graph()
-    # Main()
-    #
-    # EndTime = time.time()
-    # print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
+    print('Start Loading Data...')
+    Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
+    StartTime = time.time()
+    DataLen = []
+    for x in Coin:
+        scaler = preprocessing.StandardScaler()
+        while True:
+            try:
+                TestData = Get_Dataframe(x)
+            except:
+                print('Get_Dataframe Error')
+                time.sleep(5)
+                continue
+            if TestData is not None:
+                break
+            print('Get %s error'%x)
+        TestData = TestData.iloc[:, 1:]
+        TestData_Initial = TestData.as_matrix()
+        names['TestData%s' %x] = scaler.fit_transform(TestData_Initial)
+        DataLen.append(names['TestData%s' %x].shape[0])
+    lenData = min(DataLen)
+    Tem = names['TestData%s' % Coin[0]]
+    names['TestData%s' % Coin[0]] = Tem[int(len(Tem)-lenData):]
+    Data = names['TestData%s' % Coin[0]]
+    for x in Coin[1:]:
+        Tem = names['TestData%s' %x]
+        names['TestData%s' % x] = Tem[int(len(Tem)-lenData):]
+        Data = np.column_stack((Data, names['TestData%s' % x]))
+    lenth = int(Data.shape[0] * 5 / 6)
+    STEP = lenth - 1
+    my_train = Data[:lenth]
+    my_test = Data[lenth:]
 
-    TestBack()
+
+    EndTime = time.time()
+    print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+
+    StartTime = time.time()
+    tf.reset_default_graph()
+    Main()
+
+    EndTime = time.time()
+    print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
+
+    # TestBack()
