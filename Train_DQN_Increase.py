@@ -142,7 +142,7 @@ def TestBack():
     for x in Coin:
         names['Amount%s' % x] = 0
     names['AmountCNY']=Total_Asset /round(USDT_CNY, 2)
-    ValueAccount = 'CNY'
+    # ValueAccount = 'CNY'
     for i in range(len(Data) - 1):
         for x in Coin:
             if names['Amount%s' % x] >0:

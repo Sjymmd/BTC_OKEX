@@ -113,7 +113,10 @@ class DQN():
 
         # saving and loading networks
         self.saver = tf.train.Saver()
-        self.session = tf.InteractiveSession()
+        self.session = tf.InteractiveSession(config=tf.ConfigProto(
+  device_count={"CPU":12},
+  inter_op_parallelism_threads=0,
+  intra_op_parallelism_threads=0))
         self.session.run(tf.initialize_all_variables())
 
         checkpoint = tf.train.get_checkpoint_state("Save_Dueling_Networks")
