@@ -13,7 +13,7 @@ class TWStock():
     def __init__(self, stock_data):
         self.stock_data = stock_data
         self.stock_index = 0
-        self.last_coin = 0
+        self.last_coin = int(len(np.loadtxt("Coin_Select.txt", dtype=np.str)))
 
     def render(self):
         return
@@ -65,7 +65,8 @@ def max_pool_2x2(x):
 
 # Hyper Parameters for DQN
 GAMMA = 0.9  # discount factor for target Q
-INITIAL_EPSILON = 0.5  # starting value of epsilon
+# INITIAL_EPSILON = 0.5  # starting value of epsilon
+INITIAL_EPSILON = 0.9
 FINAL_EPSILON = 0.01  # final value of epsilon
 REPLAY_SIZE = 10000  # experience replay buffer size
 BATCH_SIZE = 32  # size of minibatch
@@ -113,10 +114,7 @@ class DQN():
 
         # saving and loading networks
         self.saver = tf.train.Saver()
-        self.session = tf.InteractiveSession(config=tf.ConfigProto(
-  device_count={"CPU":12},
-  inter_op_parallelism_threads=0,
-  intra_op_parallelism_threads=0))
+        self.session = tf.InteractiveSession()
         self.session.run(tf.initialize_all_variables())
 
         checkpoint = tf.train.get_checkpoint_state("Save_Dueling_Networks")
@@ -193,7 +191,7 @@ class DQN():
             correct_prediction = tf.equal(tf.argmax(self.y_input, 1), tf.arg_max(self.y_input, 1))
         with tf.name_scope('accuracy'):
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
+            self.accuracy = accuracy
         tf.summary.scalar('accuracy', accuracy)
         # print('accuracy',accuracy)
         tf.summary.scalar("cost", self.cost)
@@ -247,7 +245,7 @@ class DQN():
         else:
             return np.argmax(Q_value)
 
-        self.epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / 10000
+        self.epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / 100000
 
     def action(self, state):
         return np.argmax(self.q_eval.eval(feed_dict={
@@ -292,8 +290,7 @@ class DQN():
                                      feed_dict={self.state_input: batch_memory[:, :self.n_features],
                                                 self.q_target: q_target})
         self.cost_his.append(self.cost)
-
         self.epsilon_learn = self.epsilon_learn + self.epsilon_increment if self.epsilon_learn < self.epsilon_max else self.epsilon_max
         # self.epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / 10000
         self.learn_step_counter += 1
-
+        return self.cost

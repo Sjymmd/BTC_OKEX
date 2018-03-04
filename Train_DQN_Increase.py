@@ -72,21 +72,22 @@ def Get_Dataframe(Coin):
 
 # ---------------------------------------------------------
 def Coin_Select(Coin):
+    import copy
+    Coins = copy.deepcopy(Coin)
     for x in Coin:
         try:
             TestData = Get_Dataframe(x)
-
             if len(TestData) < 1000:
-                Coin.remove(x)
+                Coins.remove(x)
                 print('%s less than 1000 lines' % x)
                 continue
         except:
-            Coin.remove(x)
+            Coins.remove(x)
             continue
 
 
-    np.savetxt("Coin_Select.txt", Coin,delimiter=" ", fmt="%s")
-    Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
+    np.savetxt("Coin_Select_T.txt", Coins,delimiter=" ", fmt="%s")
+    Coin = np.loadtxt("Coin_Select_T.txt",dtype=np.str)
     print(len(Coin))
 # ## main function
 
@@ -190,6 +191,7 @@ def Main():
     rate_string = ""
     Total_Train_reward = 0
     Total_rate = 0
+    loss = 0
     for episode in range(EPISODE):
 
         # initialize task
@@ -211,7 +213,8 @@ def Main():
             agent.store_transition(state, action, np.float64(reward), next_state)
             state = next_state
             if done:
-                agent.learn()
+                lossnew = agent.learn()
+                loss +=lossnew
                 break
         anal = out.split()
         p = 0.0
@@ -245,17 +248,22 @@ def Main():
                     state, reward, done, _ = env1.step(action)
                     out += str(action) + " " + str(reward) + ","
                     total_reward += reward
+
                     if done:
                         break
             # fo.write(out + "\n")
+
+            count = 1 if episode ==0 else 10
             ave_reward = total_reward / TEST
-            ave_train_rewards =Total_Train_reward/(episode+1)
-            ave_rate =Total_rate/ (episode+1)
+            ave_train_rewards =Total_Train_reward/count
+            ave_rate =Total_rate/ count
+            ave_loss = loss/count
             # print(train_output)
-            print('Train_Rewards',ave_train_rewards, 'Training Rate:', ave_rate)
+            print('Train_Rewards',ave_train_rewards, 'Training Rate:', ave_rate,'Loss',ave_loss)
             train_output = ""
             Total_rate = 0
             Total_Train_reward = 0
+            loss = 0
             print('episode: ', episode, 'Evaluation Average Reward:', ave_reward)
             rate_string = ""
 
