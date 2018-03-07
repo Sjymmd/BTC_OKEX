@@ -14,6 +14,7 @@ class TWStock():
         self.stock_data = stock_data
         self.stock_index = 0
         self.last_coin = int(len(np.loadtxt("Coin_Select.txt", dtype=np.str)))
+        self.stock_rewards = []
 
     def render(self):
         return
@@ -27,24 +28,27 @@ class TWStock():
     def step(self, action):
         Data = self.stock_data[self.stock_index:]
         x, y = Data.shape
-        TemData = np.zeros([x - 1, int(y / 8)])
+        TemData = np.zeros([x - 1, int(y / 8)+1])
         z = 0
         for j in range(0, y):
             if j % 8 == 0:
                 for i in range(1, x):
-                    TemData[i - 1][z] = (Data[i][j] - Data[i - 1][j]) / Data[i - 1][j]
+                    TemData[i - 1][z] = (Data[i][j] - Data[i - 1][j]) / abs(Data[i - 1][j])
                 z += 1
-        MaxArray = np.amax(TemData[1:], axis=1)
+        # MaxArray = np.amax(TemData[1:], axis=1)
         # print(TemData)
-        count =1 if self.last_coin == action else 0.98
-        NowData = TemData[0][action] if action < int(y/8)else 0
+        count =1 if self.last_coin == action else 0.98*0.98
+        # NowData = TemData[0][action]
+        NowData = self.stock_rewards[self.stock_index:]
         # print(NowData)
         gamma = 0.95
         f_reward = 0
-        for x in MaxArray:
-            f_reward += gamma * x
+        for x in range(1,3):
+            # print(len(NowData))
+            f_reward += gamma * ((NowData[x]-NowData[x-1])/NowData[x])
             gamma = gamma ** 2
-        action_reward = (NowData + f_reward)*count
+        # action_reward = (NowData*gamma + f_reward)*count
+        action_reward  = float(f_reward*count)
         stock_done = False
         self.stock_index += 1
         self.last_coin = action
@@ -188,7 +192,7 @@ class DQN():
         self.cost = tf.reduce_mean(tf.square(self.y_input - Q_action))
         self.optimizer = tf.train.RMSPropOptimizer(0.00025, 0.99, 0.0, 1e-6).minimize(self.cost)
         with tf.name_scope('correct_prediction'):
-            correct_prediction = tf.equal(tf.argmax(self.y_input, 1), tf.arg_max(self.y_input, 1))
+            correct_prediction = tf.equal(tf.argmax(self.y_input, 1), tf.argmax(self.y_input, 1))
         with tf.name_scope('accuracy'):
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
             self.accuracy = accuracy
@@ -240,6 +244,9 @@ class DQN():
     def egreedy_action(self, state):
         Q_value = self.q_eval.eval(feed_dict={
             self.state_input: [state]})[0]
+
+        self.Q_Value = np.amax(Q_value)
+
         if random.random() <= self.epsilon:
             return random.randint(0, self.action_dim - 1)
         else:
@@ -248,6 +255,8 @@ class DQN():
         self.epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / 100000
 
     def action(self, state):
+        self.Q_Value = np.amax(self.q_eval.eval(feed_dict={
+            self.state_input: [state]})[0])
         return np.argmax(self.q_eval.eval(feed_dict={
             self.state_input: [state]})[0])
 

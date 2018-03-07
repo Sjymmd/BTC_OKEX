@@ -99,6 +99,7 @@ TEST = 1  # The number of experiment test every 100 episode
 def TestBack():
     # Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
     # Coin = ['btc_usdt','snt_usdt','eth_usdt']
+
     USDT_CNY = okcoinfuture.exchange_rate()['rate']
     print('Start Loading Data...')
     StartTime = time.time()
@@ -123,17 +124,37 @@ def TestBack():
         names['TestData%s' % x] = scaler.fit_transform(TestData_Initial)
         DataLen.append(names['TestData%s' % x].shape[0])
     lenData = min(DataLen)
+
+    names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
+    for x in range(lenData):
+        names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
+    names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
+    # print(names['TestPriceCNY'])
+
     print('MinLenth',lenData)
     Tem = names['TestData%s' % Coin[0]]
+    Tem_Price = names['TestPrice%s' % Coin[0]]
+    names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
     names['TestData%s' % Coin[0]] = Tem[int(len(Tem)-lenData):]
     Data = names['TestData%s' % Coin[0]]
     for x in Coin[1:]:
         Tem = names['TestData%s' % x]
+        Tem_Price = names['TestPrice%s' % x]
+        names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
         names['TestData%s' % x] = Tem[int(len(Tem)-lenData):]
         Data = np.column_stack((Data, names['TestData%s' % x]))
 
     EndTime = time.time()
     print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+
+    gamma = 0.95
+    f_reward = 0
+    fex = 1/(0.98*0.98)-1
+
+    for x in range(lenData):
+        f_reward += gamma * fex
+        gamma = gamma ** 2
+    fex_total = f_reward
 
     env1 = TWStock(Data)
     state = env1.reset()
@@ -152,19 +173,25 @@ def TestBack():
                 ValueAccount = 'CNY'
         env1.render()
         action = agent.action(state)  # direct action for test
+        CoinName = Coin[action] if action < len(Coin) else 'CNY'
+        env1.stock_rewards = names['TestPrice%s' % CoinName]
         state, reward, done, _ = env1.step(action)
-        CoinName = Coin[action] if action<len(Coin) else 'CNY'
+
+        # print(i,len(Data) - 1, action, reward, agent.Q_Value)
+
         Price = [USDT_CNY] if CoinName=='CNY' else names['TestPrice%s' % CoinName][i]
         Price = round(Price[0], 2)
         SellPrice = [USDT_CNY] if ValueAccount =='CNY' else names['TestPrice%s' % ValueAccount][i]
         SellPrice = round(SellPrice[0], 2)
         # Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
+        # if CoinName != 'CNY' and reward < fex_total:
+        #     CoinName = ValueAccount
 
         if CoinName != ValueAccount and done is False :
             Cny = names['Amount%s' % ValueAccount] * SellPrice*0.998
             names['Amount%s' % ValueAccount] = 0
             print('Sell %s' % ValueAccount, 'Time', i, 'Price', SellPrice, 'Current_Profit', Cny - Total_Asset)
-            print('Buy %s' % CoinName, 'Price', Price)
+            print('Buy %s' % CoinName, 'Price', Price,'reward',reward,'Q_value',agent.Q_Value)
             names['Amount%s' % CoinName] = (Cny / Price)*0.998
             ValueAccount = CoinName
             Cny = 0
@@ -178,6 +205,113 @@ def TestBack():
         print('AmountCNY', names['AmountCNY'], ' Last_Price %s' % USDT_CNY)
     profit = Cny + CoinPrice - Total_Asset
     print('Time',len(Data),'Profit:%d' % profit,'Total Asset:%d' %(profit+Total_Asset))
+
+
+def TestBest():
+
+    USDT_CNY = okcoinfuture.exchange_rate()['rate']
+    print('Start Loading Data...')
+    StartTime = time.time()
+    Coin = np.loadtxt("Coin_Select.txt", dtype=np.str)
+    DataLen = []
+    for x in Coin:
+        # scaler = preprocessing.StandardScaler()
+        while True:
+            try:
+                TestData = Get_Dataframe(x)
+            except:
+                print('Get_Dataframe Error')
+                time.sleep(5)
+                continue
+            if TestData is not None:
+                break
+            print('Get %s error' % x)
+        TestData = TestData.iloc[:, 1:]
+        TestData_Initial = TestData.as_matrix()
+        names['TestPrice%s' % x] = TestData.iloc[:, 0]
+        names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
+        # names['TestData%s' % x] = scaler.fit_transform(TestData_Initial)
+        names['TestData%s' % x] = TestData_Initial
+        DataLen.append(names['TestData%s' % x].shape[0])
+    lenData = min(DataLen)
+
+    names['TestPriceCNY']=pd.DataFrame(columns=['A'])
+    for x in range(lenData):
+        names['TestPriceCNY']=names['TestPriceCNY'].append({'A': USDT_CNY},ignore_index=True)
+    names['TestPrice%s' % 'CNY']= names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
+    # print(names['TestPriceCNY'])
+
+    print('MinLenth', lenData)
+    Tem = names['TestData%s' % Coin[0]]
+    Tem_Price = names['TestPrice%s' % Coin[0]]
+    names['TestData%s' % Coin[0]] = Tem[int(len(Tem) - lenData):]
+    names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
+    Data = names['TestData%s' % Coin[0]]
+    for x in Coin[1:]:
+        Tem = names['TestData%s' % x]
+        Tem_Price = names['TestPrice%s' % x]
+        names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
+        names['TestData%s' % x] = Tem[int(len(Tem) - lenData):]
+        Data = np.column_stack((Data, names['TestData%s' % x]))
+
+    EndTime = time.time()
+    print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+
+
+    Total_Asset = 1000
+    # Cny = Total_Asset
+    for x in Coin:
+        names['Amount%s' % x] = 0
+    names['AmountCNY'] = Total_Asset / round(USDT_CNY, 2)
+    x, y = Data.shape
+    TemData = np.zeros([x - 1, int(y / 8) + 1])
+    z = 0
+    for j in range(0, y):
+        if j % 8 == 0:
+            for g in range(1, x):
+                TemData[g - 1][z] = (Data[g][j] - Data[g - 1][j]) / Data[g - 1][j]
+            z += 1
+
+    MaxArray = np.argmax(TemData, axis=1)
+
+
+    ValueAccount = 'CNY'
+    for i in range(len(Data) - 1):
+        for x in Coin:
+            if names['Amount%s' % x] > 0:
+                ValueAccount = x
+            elif names['AmountCNY'] > 0:
+                ValueAccount = 'CNY'
+
+        CoinName = 'CNY' if MaxArray[i] == int(y / 8) else Coin[MaxArray[i]]
+        if CoinName != 'CNY' and TemData[i][MaxArray[i]] < (1/(0.98*0.98)-1):
+            CoinName = ValueAccount
+        #
+        Price = [USDT_CNY] if CoinName == 'CNY' else names['TestPrice%s' % CoinName][i]
+        Price = round(Price[0], 2)
+        SellPrice = [USDT_CNY] if ValueAccount == 'CNY' else names['TestPrice%s' % ValueAccount][i]
+        SellPrice = round(SellPrice[0], 2)
+        # Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
+
+        if CoinName != ValueAccount:
+            Cny = names['Amount%s' % ValueAccount] * SellPrice * 0.998
+            names['Amount%s' % ValueAccount] = 0
+            print('Sell %s' % ValueAccount, 'Time', i, 'Price', SellPrice, 'Current_Profit', Cny - Total_Asset)
+            print('Buy %s' % CoinName, 'Price', Price)
+            names['Amount%s' % CoinName] = (Cny / Price) * 0.998
+            ValueAccount = CoinName
+            Cny = 0
+    CoinPrice = 0
+    for x in Coin:
+        CoinPrice += names['TestPrice%s' % x][-1] * names['Amount%s' % x]
+        if names['Amount%s' % x] > 0:
+            print('%s Amount' % x, names['Amount%s' % x], ' Last_Price %s' % names['TestPrice%s' % x][-1][0])
+    if names['AmountCNY'] > 0:
+        CoinPrice += USDT_CNY * names['AmountCNY']
+        print('AmountCNY', names['AmountCNY'], ' Last_Price %s' % USDT_CNY)
+    profit = Cny + CoinPrice - Total_Asset
+    print('Time', len(Data), 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Total_Asset))
+
 
 def Main():
     # initialize OpenAI Gym env and dqn agent
@@ -204,11 +338,15 @@ def Main():
 
         for step in range(STEP):
             action = agent.egreedy_action(state)  # e-greedy action for trai
+            CoinName = Coin[action] if action < len(Coin) else 'CNY'
+            env.stock_rewards = names['TestPrice%s' % CoinName]
             next_state, reward, done, _ = env.step(action)
+
             out += str(reward) + " "
             train_reward += reward
             # Define reward for agent
             # reward_agent = -1 if done else 0.1
+            # print(step,STEP,action,reward,agent.Q_Value)
             agent.perceive(state, action, reward, next_state, done)
             agent.store_transition(state, action, np.float64(reward), next_state)
             state = next_state
@@ -245,6 +383,7 @@ def Main():
                 for j in range(STEP):
                     env1.render()
                     action = agent.action(state)  # direct action for test
+                    env1.stock_rewards = names['TestPrice%s' % CoinName]
                     state, reward, done, _ = env1.step(action)
                     out += str(action) + " " + str(reward) + ","
                     total_reward += reward
@@ -278,7 +417,7 @@ def Main():
 if __name__ == '__main__':
 
     # Coin_Select(Coin)
-
+    USDT_CNY = okcoinfuture.exchange_rate()['rate']
     print('Start Loading Data...')
     Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
     StartTime = time.time()
@@ -297,14 +436,26 @@ if __name__ == '__main__':
             print('Get %s error'%x)
         TestData = TestData.iloc[:, 1:]
         TestData_Initial = TestData.as_matrix()
+        names['TestPrice%s' % x] = TestData.iloc[:, 0]
+        names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
         names['TestData%s' %x] = scaler.fit_transform(TestData_Initial)
         DataLen.append(names['TestData%s' %x].shape[0])
     lenData = min(DataLen)
+
+    names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
+    for x in range(lenData):
+        names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
+    names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
+
     Tem = names['TestData%s' % Coin[0]]
+    Tem_Price = names['TestPrice%s' % Coin[0]]
+    names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
     names['TestData%s' % Coin[0]] = Tem[int(len(Tem)-lenData):]
     Data = names['TestData%s' % Coin[0]]
     for x in Coin[1:]:
         Tem = names['TestData%s' %x]
+        Tem_Price = names['TestPrice%s' % x]
+        names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
         names['TestData%s' % x] = Tem[int(len(Tem)-lenData):]
         Data = np.column_stack((Data, names['TestData%s' % x]))
     lenth = int(Data.shape[0] * 5 / 6)
@@ -324,3 +475,8 @@ if __name__ == '__main__':
     print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
     # TestBack()
+
+    # TestBest()
+
+
+
