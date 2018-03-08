@@ -394,6 +394,7 @@ def Main():
                 for j in range(STEP):
                     env1.render()
                     action = agent.action(state)  # direct action for test
+                    CoinName = Coin[action] if action < len(Coin) else 'CNY'
                     env1.stock_rewards = names['TestPrice%s' % CoinName]
                     state, reward, done, _ = env1.step(action)
                     out += str(action) + " " + str(reward) + ","
