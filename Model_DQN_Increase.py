@@ -37,18 +37,22 @@ class TWStock():
                 z += 1
         # MaxArray = np.amax(TemData[1:], axis=1)
         # print(TemData)
-        count =1 if self.last_coin == action else 0.98*0.98
+        # count =1 if self.last_coin == action else 0.98*0.98
         # NowData = TemData[0][action]
         NowData = self.stock_rewards[self.stock_index:]
         # print(NowData)
         gamma = 0.95
+        fex = 1 / (0.998 * 0.998) - 1
         f_reward = 0
         for x in range(1,3):
             # print(len(NowData))
-            f_reward += gamma * ((NowData[x]-NowData[x-1])/NowData[x])
+            if self.last_coin == action:
+                f_reward += gamma * ((NowData[x]-NowData[x-1])/NowData[x])
+            else:
+                f_reward += gamma * (((NowData[x] - NowData[x - 1]) / NowData[x])-fex)
             gamma = gamma ** 2
         # action_reward = (NowData*gamma + f_reward)*count
-        action_reward  = float(f_reward*count)
+        action_reward  = float(f_reward)
         stock_done = False
         self.stock_index += 1
         self.last_coin = action
@@ -259,6 +263,7 @@ class DQN():
             self.state_input: [state]})[0])
         return np.argmax(self.q_eval.eval(feed_dict={
             self.state_input: [state]})[0])
+
 
     def weight_variable(self, shape):
         initial = tf.truncated_normal(shape)
