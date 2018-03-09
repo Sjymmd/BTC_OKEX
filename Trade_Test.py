@@ -23,12 +23,12 @@ class Trade():
                 try:
                     TestData = Get_Dataframe(x)
                 except:
-                    print('Get_Dataframe Error')
+                    # print('Get_Dataframe Error')
                     time.sleep(5)
                     continue
                 if TestData is not None:
                     break
-                print('Get %s error' % x)
+                # print('Get %s error' % x)
             TestData = TestData.iloc[:-1, 1:]
             TestData_Initial = TestData.as_matrix()
             names['TestPrice%s' % x] = TestData.iloc[:, 0]
