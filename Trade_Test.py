@@ -204,8 +204,9 @@ if __name__=='__main__':
     USDT_CNY = okcoinfuture.exchange_rate()['rate']
 
     Trade_Path = 'Trade_Log.txt'
-    with open(Trade_Path, "w") as f:
-        f.write('CreateTime %s' % now)
+    f = open(Trade_Path, 'r+')
+    f.read()
+    f.write('CreateTime %s' % now)
 
     Total_Asset  = 1000
 

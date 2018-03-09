@@ -12,7 +12,7 @@ iost_usdt
 dgb_usdt
 bcd_usdt
 aac_usdt
-bcc_usdt
+bch_usdt
 bch_usdt
 cmt_usdt
 btc_usdt
