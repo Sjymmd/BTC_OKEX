@@ -14,11 +14,12 @@ import time
 import datetime
 import numpy as np
 import warnings
+from config import apikey,secretkey
 warnings.filterwarnings("ignore")
 #
 okcoinRESTURL = 'www.okex.com'
-apikey='ca785f62-8a86-4ad2-8ebd-173da8217a4c'
-secretkey='ADAE3F37C1E1DA1F8C5999FDE68FC2B6'
+apikey=apikey
+secretkey=secretkey
 okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
 okcoinfuture = OKCoinFuture(okcoinRESTURL, apikey, secretkey)
 #
