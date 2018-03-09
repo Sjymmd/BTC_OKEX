@@ -62,7 +62,7 @@ def Get_Dataframe(Coin):
         return DataFrame
         # print(DataFrame)
     except:
-        time.sleep(5)
+        time.sleep(10)
         print('%s error'%Coin)
 
 class Trade():
@@ -85,7 +85,7 @@ class Trade():
                     TestData = Get_Dataframe(x)
                 except:
                     # print('Get_Dataframe Error')
-                    time.sleep(5)
+                    time.sleep(10)
                     continue
                 if TestData is not None:
                     break
