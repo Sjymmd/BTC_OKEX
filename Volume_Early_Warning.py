@@ -30,7 +30,14 @@ class Okex_Api:
         self._Lenth = 24
         self._KlineChosen = '1hour'
         self._Watch_Coin = 'snt'
-        self._USDT_CNY = okcoinfuture.exchange_rate()['rate']
+        while True:
+            try:
+                self._USDT_CNY = okcoinfuture.exchange_rate()['rate']
+                break
+            except:
+                print('OKEX_Error')
+                time.sleep(60)
+
         self._EndLenth = 0
 
     def Input(self):
