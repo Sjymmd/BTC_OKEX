@@ -243,8 +243,8 @@ if __name__=='__main__':
 
     while True:
 
-        sched.add_job(job, 'interval', seconds=10)
-        # sched.add_job(job,'cron', minute = 2)
+        # sched.add_job(job, 'interval', seconds=10)
+        sched.add_job(job,'cron', minute = 2)
 
         try:
             sched.start()
