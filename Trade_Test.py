@@ -41,7 +41,7 @@ def Get_Dataframe(Coin):
         Timeshrft = pd.Series({'Coin': Coin, 'Cny': Cny,'High':Hi_price,'Low':Lo_price, 'Inc': Increase, 'Volume_Pre_K': Volume_Pre,
                                'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
         DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
-        for lenth in range(1,Okex_Api._Lenth-1):
+        for lenth in range(1,len(data)-1):
             try:
                 Increase = (float(data.iloc[lenth, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
                 # Increase = str('%.2f' % (Increase) + '%')
@@ -162,14 +162,14 @@ class Trade():
             now = datetime.datetime.now()
             now = now.strftime('%Y-%m-%d %H:%M:%S')
 
-            print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Total_Asset)
-            print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
+            print('\033[32;0mSell %s\033[0m' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
+            print('\033[31;0mBuy %s\033[0m' % CoinName, 'Price', Price, 'Time', now)
 
             f = open(Trade_Path, 'r+')
             f.read()
             f.write('\n%s'%now)
             f.write('\nSell %s , Price %s, Current_Profit %s' % (
-                self.ValueAccount, SellPrice, Cny - Total_Asset))
+                self.ValueAccount, SellPrice, Cny - Initial_Asset))
             f.write('\nBuy %s , Price %s' % (CoinName, Price))
             f.close()
 
@@ -216,7 +216,7 @@ if __name__=='__main__':
     Initial_Asset = 1000
     Total_Asset = Initial_Asset + Current_Profit
     ValueAccount = str(ValueAccount_Txt[-1]).split(' ')[1]
-    QTY = float(Total_Asset/float(str(ValueAccount_Txt[-1]).split(' ')[-1]))
+    QTY = float(Total_Asset/float(str(ValueAccount_Txt[-1]).split(' ')[-1]))*0.998
 
     try:
         action_last = Coin.tolist().index(ValueAccount)
@@ -243,8 +243,8 @@ if __name__=='__main__':
 
     while True:
 
-        # sched.add_job(job, 'interval', seconds=30)
-        sched.add_job(job,'cron', minute = 2)
+        sched.add_job(job, 'interval', seconds=10)
+        # sched.add_job(job,'cron', minute = 2)
 
         try:
             sched.start()

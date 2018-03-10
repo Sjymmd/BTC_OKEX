@@ -46,7 +46,7 @@ def Get_Dataframe(Coin):
         Timeshrft = pd.Series({'Coin': Coin, 'Cny': Cny,'High':Hi_price,'Low':Lo_price, 'Inc': Increase, 'Volume_Pre_K': Volume_Pre,
                                'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
         DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
-        for lenth in range(1,Okex_Api._Lenth-1):
+        for lenth in range(1,len(data)-1):
             try:
                 Increase = (float(data.iloc[lenth, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
                 # Increase = str('%.2f' % (Increase) + '%')
@@ -303,15 +303,14 @@ def TestBest():
         SellPrice = [USDT_CNY] if ValueAccount == 'CNY' else names['TestPrice%s' % ValueAccount][i]
         SellPrice = round(SellPrice[0], 2)
         # Price = scaler_Price.inverse_transform(state[0].reshape(-1,1))
-
         if CoinName != ValueAccount:
             Cny = names['Amount%s' % ValueAccount] * SellPrice * 0.998
             names['Amount%s' % ValueAccount] = 0
             print('Sell %s' % ValueAccount, 'Time', i, 'Price', SellPrice, 'Current_Profit', Cny - Total_Asset)
-            print('Buy %s' % CoinName, 'Price', Price)
+            print('Buy %s\033[0m' % CoinName, 'Price', Price)
             names['Amount%s' % CoinName] = (Cny / Price) * 0.998
             ValueAccount = CoinName
-            Cny = 0
+
     CoinPrice = 0
     for x in Coin:
         CoinPrice += names['TestPrice%s' % x][-1] * names['Amount%s' % x]
@@ -320,7 +319,7 @@ def TestBest():
     if names['AmountCNY'] > 0:
         CoinPrice += USDT_CNY * names['AmountCNY']
         print('AmountCNY', names['AmountCNY'], ' Last_Price %s' % USDT_CNY)
-    profit = Cny + CoinPrice - Total_Asset
+    profit =  CoinPrice - Total_Asset
     print('Time', len(Data), 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Total_Asset))
 
 

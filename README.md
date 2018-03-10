@@ -3,5 +3,5 @@ Hope Useful!
  Use `OKEX` API to make quantitative transactions
 ## Written by Python
     Recording something important
-* DQN_Dueling.py
-* Model_DQN_Dueling.py
+* Train_DQN_Increase.py
+* Model_DQN_Increase.py
