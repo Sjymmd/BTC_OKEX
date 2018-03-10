@@ -433,7 +433,7 @@ if __name__ == '__main__':
         while True:
             timenow = datetime.datetime.now()
             min = timenow.minute
-            if min >25:
+            if min > 25 and min < 40:
                 break
             time.sleep(10*60)
 
