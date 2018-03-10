@@ -431,6 +431,13 @@ if __name__ == '__main__':
     # Coin_Select(Coin)
     while True:
 
+        while True:
+            timenow = datetime.datetime.now()
+            min = timenow.minute
+            if min >25:
+                break
+            time.sleep(10*60)
+
         USDT_CNY = okcoinfuture.exchange_rate()['rate']
         print('Start Loading Data...')
         Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
@@ -488,10 +495,7 @@ if __name__ == '__main__':
         EndTime = time.time()
         print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
-        timenow = datetime.datetime.now()
-        min = timenow.minute
-        if min <20:
-            time.sleep(20*60)
+
     # TestBack()
 
     # TestBest()

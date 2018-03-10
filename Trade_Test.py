@@ -67,10 +67,10 @@ def Get_Dataframe(Coin):
 
 class Trade():
 
-    def __init__(self):
+    def __init__(self,action_last = len(Coin),ValuAccount ='CNY'):
 
-        self.action_last = len(Coin)
-        self.ValueAccount = 'CNY'
+        self.action_last = action_last
+        self.ValueAccount = ValuAccount
 
 
     def main(self):
@@ -90,7 +90,7 @@ class Trade():
                 if TestData is not None:
                     break
                 # print('Get %s error' % x)
-            TestData = TestData.iloc[:-1, 1:]
+            TestData = TestData.iloc[:, 1:]
             TestData_Initial = TestData.as_matrix()
             names['TestPrice%s' % x] = TestData.iloc[:, 0]
             names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
@@ -117,14 +117,15 @@ class Trade():
             names['TestData%s' % x] = Tem[int(len(Tem) - lenData):]
             Data = np.column_stack((Data, names['TestData%s' % x]))
 
-        EndTime = time.time()
+        # EndTime = time.time()
         # print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
 
         DataNow = Data[-1]
 
         env1 = TWStock(DataNow)
         state = DataNow
-        agent = DQN(env1)
+        agent = DQN(env1,self_print=False)
+        agent.print = False
 
         # env1.render()
         action = agent.action(state)  # direc
@@ -170,6 +171,7 @@ class Trade():
             f.write('\nSell %s , Price %s, Current_Profit %s' % (
                 self.ValueAccount, SellPrice, Cny - Total_Asset))
             f.write('\nBuy %s , Price %s' % (CoinName, Price))
+            f.close()
 
             names['QTY%s' % CoinName] = (Cny / Price) * 0.998
             self.ValueAccount = CoinName
@@ -186,11 +188,11 @@ class Trade():
         if names['QTYCNY'] > 0:
             CoinPrice += USDT_CNY * names['QTYCNY']
             print('QTYCNY', names['QTYCNY'], ' Last_Price %s' % USDT_CNY)
-        profit = CoinPrice - Total_Asset
+        profit = CoinPrice - Initial_Asset
 
         now = datetime.datetime.now()
         now = now.strftime('%Y-%m-%d %H:%M:%S')
-        print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Total_Asset))
+        print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset))
 
 
 
@@ -205,17 +207,32 @@ if __name__=='__main__':
 
     Trade_Path = 'Trade_Log.txt'
     f = open(Trade_Path, 'r+')
-    f.read()
-    f.write('CreateTime %s' % now)
+    ValueAccount_Txt = f.readlines()
+    # f.read()
+    # f.write('CreateTime %s' % now)
+    f.close()
 
-    Total_Asset  = 1000
+    Current_Profit = float(str(ValueAccount_Txt[-2]).split(' ')[-1][:-1])
+    Initial_Asset = 1000
+    Total_Asset = Initial_Asset + Current_Profit
+    ValueAccount = str(ValueAccount_Txt[-1]).split(' ')[1]
+    QTY = float(Total_Asset/float(str(ValueAccount_Txt[-1]).split(' ')[-1]))
+
+    try:
+        action_last = Coin.tolist().index(ValueAccount)
+    except:
+        action_last = len(Coin)
+
 
     names = locals()
     for x in Coin:
         names['QTY%s' % x] = 0
-    names['QTYCNY'] = Total_Asset / round(USDT_CNY, 2)
+    names['QTYCNY'] = 0
 
-    Trade = Trade()
+    names['QTY%s' % ValueAccount] = QTY
+
+
+    Trade = Trade(ValuAccount= ValueAccount,action_last =action_last)
 
     from apscheduler.schedulers.blocking import BlockingScheduler
 

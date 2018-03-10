@@ -86,7 +86,8 @@ e_greedy=0.9
 
 class DQN():
     # DQN Agent
-    def __init__(self, env):
+    def __init__(self, env,self_print = True):
+        self.print = self_print
         self.memory_size = 500
         self.dueling = True
         # init experience replay
@@ -129,11 +130,11 @@ class DQN():
 
         if checkpoint and checkpoint.model_checkpoint_path:
             self.saver.restore(self.session, checkpoint.model_checkpoint_path)
-            print(
-            "Successfully loaded:", checkpoint.model_checkpoint_path)
+            if self.print is True:
+                print(
+                "Successfully loaded:", checkpoint.model_checkpoint_path)
         else:
-            print
-            ("Could not find old network weights")
+            print("Could not find old network weights")
 
     def create_Q_network(self):
 
