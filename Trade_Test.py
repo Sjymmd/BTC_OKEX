@@ -162,9 +162,11 @@ class Trade():
             now = datetime.datetime.now()
             now = now.strftime('%Y-%m-%d %H:%M:%S')
 
-            print('\033[32;0mSell %s\033[0m' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
-            print('\033[31;0mBuy %s\033[0m' % CoinName, 'Price', Price, 'Time', now)
-
+            # print('\033[32;0mSell %s\033[0m' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
+            # print('\033[31;0mBuy %s\033[0m' % CoinName, 'Price', Price, 'Time', now)
+            print('Sell %s' % self.ValueAccount,'Buy %s' % CoinName )
+            print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
+            print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
             f = open(Trade_Path, 'r+')
             f.read()
             f.write('\n%s'%now)
@@ -204,19 +206,28 @@ if __name__=='__main__':
     now = datetime.datetime.now()
     now = now.strftime('%Y-%m-%d %H:%M:%S')
     USDT_CNY = okcoinfuture.exchange_rate()['rate']
-
-    Trade_Path = 'Trade_Log.txt'
-    f = open(Trade_Path, 'r+')
-    ValueAccount_Txt = f.readlines()
-    # f.read()
-    # f.write('CreateTime %s' % now)
-    f.close()
-
-    Current_Profit = float(str(ValueAccount_Txt[-2]).split(' ')[-1][:-1])
     Initial_Asset = 1000
-    Total_Asset = Initial_Asset + Current_Profit
-    ValueAccount = str(ValueAccount_Txt[-1]).split(' ')[1]
-    QTY = float(Total_Asset/float(str(ValueAccount_Txt[-1]).split(' ')[-1]))*0.998
+    try:
+        Trade_Path = 'Trade_Log.txt'
+        f = open(Trade_Path, 'r+')
+        ValueAccount_Txt = f.readlines()
+        # f.read()
+        # f.write('CreateTime %s' % now)
+        f.close()
+
+        Current_Profit = float(str(ValueAccount_Txt[-2]).split(' ')[-1][:-1])
+
+        Total_Asset = Initial_Asset + Current_Profit
+        ValueAccount = str(ValueAccount_Txt[-1]).split(' ')[1]
+        QTY = float(Total_Asset/float(str(ValueAccount_Txt[-1]).split(' ')[-1]))*0.998
+        print('Successfully loaded:Trade_Log')
+
+    except:
+
+        ValueAccount  = 'CNY'
+        Total_Asset = Initial_Asset
+        QTY = float(Total_Asset/USDT_CNY)
+        print("Initial Model")
 
     try:
         action_last = Coin.tolist().index(ValueAccount)
