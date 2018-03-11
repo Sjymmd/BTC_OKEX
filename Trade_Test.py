@@ -184,9 +184,12 @@ class Trade():
 
         CoinPrice = 0
         for x in Coin:
+
             CoinPrice += names['TestPrice%s' % x][-1] * names['QTY%s' % x]
             if names['QTY%s' % x] > 0:
                 print('%s QTY' % x, names['QTY%s' % x], ' Last_Price %s' % names['TestPrice%s' % x][-1][0])
+                break
+                
         if names['QTYCNY'] > 0:
             CoinPrice += USDT_CNY * names['QTYCNY']
             print('QTYCNY', names['QTYCNY'], ' Last_Price %s' % USDT_CNY)
