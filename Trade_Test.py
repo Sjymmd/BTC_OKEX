@@ -67,11 +67,11 @@ def Get_Dataframe(Coin):
 
 class Trade():
 
-    def __init__(self,action_last = len(Coin),ValuAccount ='CNY'):
+    def __init__(self,Price_Begun,action_last = len(Coin),ValuAccount ='CNY'):
 
         self.action_last = action_last
         self.ValueAccount = ValuAccount
-
+        self.Price_Begun = Price_Begun
 
     def main(self):
         # print('Start Loading Data...')
@@ -148,10 +148,17 @@ class Trade():
         if action_reward < 0.01 and CoinName != 'CNY':
             CoinName = self.ValueAccount
 
+
         Price = [USDT_CNY] if CoinName == 'CNY' else names['TestPrice%s' % CoinName][-1]
         Price = round(Price[0], 2)
         SellPrice = [USDT_CNY] if self.ValueAccount == 'CNY' else names['TestPrice%s' % self.ValueAccount][-1]
         SellPrice = round(SellPrice[0], 2)
+
+        if (SellPrice-self.Price_Begun)/self.Price_Begun > 0.1:
+            CoinName = 'CNY'
+            Price = round([USDT_CNY][0],2)
+            print('Profit Get!')
+
 
         if CoinName != self.ValueAccount:
 
@@ -167,6 +174,7 @@ class Trade():
             print('Sell %s' % self.ValueAccount,'Buy %s' % CoinName )
             print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
             print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
+            self.Price_Begun = Price
             f = open(Trade_Path, 'r+')
             f.read()
             f.write('\n%s'%now)
@@ -219,7 +227,7 @@ if __name__=='__main__':
         f.close()
 
         Current_Profit = float(str(ValueAccount_Txt[-2]).split(' ')[-1][:-1])
-
+        Price_Begun = float(str(ValueAccount_Txt[-1]).split(' ')[-1])
         Total_Asset = Initial_Asset + Current_Profit
         ValueAccount = str(ValueAccount_Txt[-1]).split(' ')[1]
         QTY = float(Total_Asset/float(str(ValueAccount_Txt[-1]).split(' ')[-1]))*0.998
@@ -230,6 +238,7 @@ if __name__=='__main__':
         ValueAccount  = 'CNY'
         Total_Asset = Initial_Asset
         QTY = float(Total_Asset/USDT_CNY)
+        Price_Begun = USDT_CNY
         print("Initial Model")
 
     try:
@@ -246,7 +255,7 @@ if __name__=='__main__':
     names['QTY%s' % ValueAccount] = QTY
 
 
-    Trade = Trade(ValuAccount= ValueAccount,action_last =action_last)
+    Trade = Trade(ValuAccount= ValueAccount,action_last =action_last,Price_Begun = Price_Begun)
 
     from apscheduler.schedulers.blocking import BlockingScheduler
 

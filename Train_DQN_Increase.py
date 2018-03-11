@@ -95,7 +95,7 @@ def Coin_Select(Coin):
 EPISODE = 10000  # Episode limitation
 # 300 # Step limitation in an episode
 TEST = 1  # The number of experiment test every 100 episode
-Trade_Path = 'Trade.txt'
+Trade_Path = 'Trade_TestBack.txt'
 
 def TestBack():
     # Coin = pd.read_table('Coin_Select.txt', sep=',').iloc[:5, 0].values
@@ -170,6 +170,8 @@ def TestBack():
     with open(Trade_Path, "w") as f:
         f.write('MinLenth %d'%lenData)
 
+    Price_Begun = USDT_CNY
+
     for i in range(len(Data) - 2):
         for x in Coin:
             if names['Amount%s' % x] >0:
@@ -192,12 +194,17 @@ def TestBack():
         if CoinName != 'CNY' and reward < 0.01:
             CoinName = ValueAccount
 
+        if (SellPrice-Price_Begun)/Price_Begun > 0.1:
+            CoinName = 'CNY'
+            Price = round([USDT_CNY][0], 2)
+            print('Profit Get!')
+
         if CoinName != ValueAccount and done is False :
             Cny = names['Amount%s' % ValueAccount] * SellPrice*0.998
             names['Amount%s' % ValueAccount] = 0
             print('Sell %s' % ValueAccount, 'Time', i, 'Price', SellPrice, 'Current_Profit', Cny - Total_Asset)
             print('Buy %s' % CoinName, 'Price', Price,'reward',reward,'Q_value',agent.Q_Value)
-
+            Price_Begun = Price
             f = open(Trade_Path, 'r+')
             f.read()
             f.write('\nSell %s , Time %d, Price %s, Current_Profit %s'%( ValueAccount,i,SellPrice,Cny - Total_Asset))
@@ -205,16 +212,17 @@ def TestBack():
 
             names['Amount%s' % CoinName] = (Cny / Price)*0.998
             ValueAccount = CoinName
-            Cny = 0
+
     CoinPrice = 0
     for x in Coin:
         CoinPrice += names['TestPrice%s' % x][-1] * names['Amount%s' % x]
         if names['Amount%s' % x] >0:
             print('%s Amount' % x, names['Amount%s' % x],' Last_Price %s'% names['TestPrice%s' % x][-1][0])
+            break
     if names['AmountCNY'] >0:
         CoinPrice += USDT_CNY * names['AmountCNY']
         print('AmountCNY', names['AmountCNY'], ' Last_Price %s' % USDT_CNY)
-    profit = Cny + CoinPrice - Total_Asset
+    profit = CoinPrice - Total_Asset
     print('Time',len(Data),'Profit:%d' % profit,'Total Asset:%d' %(profit+Total_Asset))
 
 
@@ -428,74 +436,75 @@ def Main():
 if __name__ == '__main__':
 
     # Coin_Select(Coin)
-    while True:
 
-        while True:
-            timenow = datetime.datetime.now()
-            minutes = timenow.minute
-            if minutes > 25 and minutes < 40:
-                break
-            time.sleep(10*60)
+    # while True:
+    #
+    #     while True:
+    #         timenow = datetime.datetime.now()
+    #         minutes = timenow.minute
+    #         if minutes > 25 and minutes < 40:
+    #             break
+    #         time.sleep(10*60)
+    #
+    #     USDT_CNY = okcoinfuture.exchange_rate()['rate']
+    #     print('Start Loading Data...')
+    #     Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
+    #     StartTime = time.time()
+    #     DataLen = []
+    #     for x in Coin:
+    #         scaler = preprocessing.StandardScaler()
+    #         while True:
+    #             try:
+    #                 TestData = Get_Dataframe(x)
+    #             except:
+    #                 print('Get_Dataframe Error')
+    #                 time.sleep(5)
+    #                 continue
+    #             if TestData is not None:
+    #                 break
+    #             print('Get %s error'%x)
+    #         TestData = TestData.iloc[:, 1:]
+    #         TestData_Initial = TestData.as_matrix()
+    #         names['TestPrice%s' % x] = TestData.iloc[:, 0]
+    #         names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
+    #         names['TestData%s' %x] = scaler.fit_transform(TestData_Initial)
+    #         DataLen.append(names['TestData%s' %x].shape[0])
+    #     lenData = min(DataLen)
+    #
+    #     names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
+    #     for x in range(lenData):
+    #         names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
+    #     names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
+    #
+    #     Tem = names['TestData%s' % Coin[0]]
+    #     Tem_Price = names['TestPrice%s' % Coin[0]]
+    #     names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
+    #     names['TestData%s' % Coin[0]] = Tem[int(len(Tem)-lenData):]
+    #     Data = names['TestData%s' % Coin[0]]
+    #     for x in Coin[1:]:
+    #         Tem = names['TestData%s' %x]
+    #         Tem_Price = names['TestPrice%s' % x]
+    #         names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
+    #         names['TestData%s' % x] = Tem[int(len(Tem)-lenData):]
+    #         Data = np.column_stack((Data, names['TestData%s' % x]))
+    #     lenth = int(Data.shape[0] * 5 / 6)
+    #     STEP = lenth - 1
+    #     my_train = Data[:lenth]
+    #     my_test = Data[lenth:]
+    #
+    #
+    #     EndTime = time.time()
+    #     print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+    #
+    #     StartTime = time.time()
+    #     tf.reset_default_graph()
+    #     Main()
+    #
+    #     EndTime = time.time()
+    #     print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
+    #
 
-        USDT_CNY = okcoinfuture.exchange_rate()['rate']
-        print('Start Loading Data...')
-        Coin = np.loadtxt("Coin_Select.txt",dtype=np.str)
-        StartTime = time.time()
-        DataLen = []
-        for x in Coin:
-            scaler = preprocessing.StandardScaler()
-            while True:
-                try:
-                    TestData = Get_Dataframe(x)
-                except:
-                    print('Get_Dataframe Error')
-                    time.sleep(5)
-                    continue
-                if TestData is not None:
-                    break
-                print('Get %s error'%x)
-            TestData = TestData.iloc[:, 1:]
-            TestData_Initial = TestData.as_matrix()
-            names['TestPrice%s' % x] = TestData.iloc[:, 0]
-            names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
-            names['TestData%s' %x] = scaler.fit_transform(TestData_Initial)
-            DataLen.append(names['TestData%s' %x].shape[0])
-        lenData = min(DataLen)
-
-        names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
-        for x in range(lenData):
-            names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
-        names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
-
-        Tem = names['TestData%s' % Coin[0]]
-        Tem_Price = names['TestPrice%s' % Coin[0]]
-        names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
-        names['TestData%s' % Coin[0]] = Tem[int(len(Tem)-lenData):]
-        Data = names['TestData%s' % Coin[0]]
-        for x in Coin[1:]:
-            Tem = names['TestData%s' %x]
-            Tem_Price = names['TestPrice%s' % x]
-            names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
-            names['TestData%s' % x] = Tem[int(len(Tem)-lenData):]
-            Data = np.column_stack((Data, names['TestData%s' % x]))
-        lenth = int(Data.shape[0] * 5 / 6)
-        STEP = lenth - 1
-        my_train = Data[:lenth]
-        my_test = Data[lenth:]
-
-
-        EndTime = time.time()
-        print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
-
-        StartTime = time.time()
-        tf.reset_default_graph()
-        Main()
-
-        EndTime = time.time()
-        print('Training Using_Time: %d min' % int((EndTime - StartTime) / 60))
-
-
-    # TestBack()
+    TestBack()
 
     # TestBest()
 
