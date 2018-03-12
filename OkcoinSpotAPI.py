@@ -102,12 +102,12 @@ class OKCoinSpot:
             'symbol': symbol,
             'type': tradeType
         }
-        # if price:
-        #     params['price'] = price
-        # if amount:
-        #     params['amount'] = amount
-        params['amount'] = amount
-        params['price'] = price
+        if price:
+            params['price'] = price
+        if amount:
+            params['amount'] = amount
+        # params['amount'] = amount
+        # params['price'] = price
         params['sign'] = buildMySign(params, self.__secretkey)
         return httpPost(self.__url, TRADE_RESOURCE, params)
 
@@ -399,19 +399,3 @@ class OKCoinFuture:
         # return httpGet(self.__url, kline_resourse, temp_params)
 
 ########################
-# okcoinRESTURL = 'www.okcoin.cn'
-# apikey='9a8579ff-ef49-42ea-a13a-38ff8eb31055'
-# secretkey='5053CDB83A2D334FB4466B017CD77230'
-# okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
-# from Mysql import *
-# print('买入信号')
-# # print(OKCoinSpot.ticker('ltc_cny'))
-# # ticker = OKCoinSpot.ticker('ltc_cny')
-# # last = float(ticker["ticker"]["last"])
-#
-# close=okcoinSpot.getKline('1min','1','0')[0][4]
-# charge_ltc = close * 0.0002
-# if  "error_code" not in okcoinSpot.trade('ltc_cny', 'buy', 169, '0.1'):
-#     mysql.COST_CALCUATION(close, 0.1, charge_ltc)
-# else:
-#     print("交易失败")

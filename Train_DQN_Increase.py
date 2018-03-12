@@ -324,6 +324,7 @@ def TestBest():
         CoinPrice += names['TestPrice%s' % x][-1] * names['Amount%s' % x]
         if names['Amount%s' % x] > 0:
             print('%s Amount' % x, names['Amount%s' % x], ' Last_Price %s' % names['TestPrice%s' % x][-1][0])
+            break
     if names['AmountCNY'] > 0:
         CoinPrice += USDT_CNY * names['AmountCNY']
         print('AmountCNY', names['AmountCNY'], ' Last_Price %s' % USDT_CNY)
