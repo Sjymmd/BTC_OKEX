@@ -153,7 +153,7 @@ class Trade():
 
 
             while True:
-               if Trade_Api.Check_FreezedCoin():
+               if Trade_api.Check_FreezedCoin():
                    time.sleep(5)
                else:
                    print('Sell Complete')
