@@ -60,15 +60,32 @@ class Trade_Api(object):
                     okcoinSpot.trade(CoinName, 'buy_market',self.Amount[x])
 
 
-    # def CheckOrder(self):
+    def GetAsset(self):
+        self.Get_Coin()
+        Asset = 0
+        Usdt = okcoinfuture.exchange_rate()['rate']
+        for x in range(len(self.Coin)):
+            # print(self.Coin[x])
+            if self.Coin[x] != 'usdt_usdt':
+                Price = okcoinSpot.ticker(self.Coin[x])['ticker']['last']
+            else:
+                Price = 1
+            try:
+                Asset += float(self.Amount[x]) * float(Usdt) *float(Price)
+            except:
+                continue
+        return round(Asset,2)
+
 
 if __name__ == '__main__':
     # print(okcoinSpot.trades('snt_usdt'))
+    # Trade_Api = Trade_Api()
+    #
+    # while True:
+    #     if Trade_Api.Check_FreezedCoin():
+    #         pass
+    #     else:
+    #         print('Sell Complete')
+    #         break
     Trade_Api = Trade_Api()
-
-    while True:
-        if Trade_Api.Check_FreezedCoin():
-            pass
-        else:
-            print('Sell Complete')
-            break
+    print(Trade_Api.GetAsset())

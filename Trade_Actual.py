@@ -248,6 +248,8 @@ class Trade():
         now = datetime.datetime.now()
         now = now.strftime('%Y-%m-%d %H:%M:%S')
         print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset))
+        Asset = Trade_api.GetAsset()
+        print('Actual_Asset',Asset)
 
 
 if __name__ == '__main__':
