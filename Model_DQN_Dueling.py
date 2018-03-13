@@ -4,7 +4,6 @@ import tensorflow as tf
 import numpy as np
 import random
 from collections import deque
-import pandas as pd
 from fractions import Fraction
 import warnings
 
@@ -36,8 +35,8 @@ class TWStock():
         if action % 3 == 2:
             my_train = self.stock_data[self.stock_index:]
             num = int(Fraction(8, 3)*(action-1)- Fraction(5, 3))
-            max = np.amax(my_train, axis=0)[num]
-            action_reward = max - self.stock_data[self.stock_index][num - 1]
+            min = np.amin(my_train, axis=0)[num]
+            action_reward = min - self.stock_data[self.stock_index][num - 1]
             action_reward = -1 * action_reward
 
         # print(str(action)+" "+str(action_reward))
@@ -73,7 +72,7 @@ BATCH_SIZE = 32  # size of minibatch
 class DQN():
     # DQN Agent
     def __init__(self, env):
-
+        self.memory_size = 500
         self.dueling = True
         # init experience replay
         self.replay_buffer = deque()

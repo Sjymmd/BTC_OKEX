@@ -36,8 +36,8 @@ class TWStock():
         if action % 3 == 2:
             my_train = self.stock_data[self.stock_index:]
             num = int(Fraction(8, 3)*(action-1)- Fraction(5, 3))
-            max = np.amax(my_train, axis=0)[num]
-            action_reward = max - self.stock_data[self.stock_index][num - 1]
+            min = np.amin(my_train, axis=0)[num]
+            action_reward = min - self.stock_data[self.stock_index][num - 1]
             action_reward = -1 * action_reward
 
         # print(str(action)+" "+str(action_reward))

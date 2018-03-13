@@ -1,7 +1,6 @@
 from Volume_Early_Warning import *
 from sklearn import preprocessing
 from Model_DQN_Increase import *
-from Trade import *
 
 warnings.filterwarnings("ignore")
 Okex_Api = Okex_Api()
@@ -148,21 +147,21 @@ class Trade():
             print('Sell %s' % self.ValueAccount, 'Buy %s' % CoinName)
             print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
 
-            Trade_api.Get_Coin()
-            Trade_api.Sell_Coin()
-
-
-            while True:
-               if Trade_api.Check_FreezedCoin():
-                   time.sleep(5)
-               else:
-                   print('Sell Complete')
-                   break
-
-            print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
-
-            Trade_api.Get_Coin()
-            Trade_api.Buy_Coin(CoinName)
+            # Trade_api.Get_Coin()
+            # Trade_api.Sell_Coin()
+            #
+            #
+            # while True:
+            #    if Trade_api.Check_FreezedCoin():
+            #        time.sleep(5)
+            #    else:
+            #        print('Sell Complete')
+            #        break
+            #
+            # print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
+            #
+            # Trade_api.Get_Coin()
+            # Trade_api.Buy_Coin(CoinName)
 
 
             self.Price_Begun = Price
@@ -247,20 +246,18 @@ class Trade():
 
         now = datetime.datetime.now()
         now = now.strftime('%Y-%m-%d %H:%M:%S')
-        print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset))
-        Asset = Trade_api.GetAsset()
-        print('Actual_Asset',Asset)
+        print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset),'Rewards',action_reward)
 
 
 if __name__ == '__main__':
 
-    Coin = np.loadtxt("./logs/Coin_Select.txt", dtype=np.str)
+    Coin = np.loadtxt("Coin_Select.txt", dtype=np.str)
     now = datetime.datetime.now()
     now = now.strftime('%Y-%m-%d %H:%M:%S')
     USDT_CNY = okcoinfuture.exchange_rate()['rate']
     Initial_Asset = 1000
     try:
-        Trade_Path = './logs/Trade_Log.txt'
+        Trade_Path = 'Trade_Log.txt'
         f = open(Trade_Path, 'r+')
         ValueAccount_Txt = f.readlines()
         # f.read()
@@ -299,7 +296,6 @@ if __name__ == '__main__':
     from apscheduler.schedulers.blocking import BlockingScheduler
 
     sched = BlockingScheduler()
-    Trade_api = Trade_Api()
 
     def job():
         Trade.main()
@@ -307,8 +303,8 @@ if __name__ == '__main__':
 
     while True:
 
-        # sched.add_job(job, 'interval', seconds=30)
-        sched.add_job(job, 'cron', minute=2)
+        sched.add_job(job, 'interval', seconds=30)
+        # sched.add_job(job, 'cron', minute=2)
 
         try:
             sched.start()
