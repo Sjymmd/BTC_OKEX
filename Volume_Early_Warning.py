@@ -27,7 +27,7 @@ class Okex_Api:
 
     def __init__(self):
         self._Kline={'1min':'1min','3min':'3min','5min':'5min','15min':'15min','30min':'30min','1day':'1day','3day':'3day','1week':'1week','1hour':'1hour','2hour':'2hour','4hour':'4hour','6hour':'6hour','12hour':'12hour'}
-        self._Lenth = 24
+        self._Lenth = 24*1000
         self._KlineChosen = '1hour'
         self._Watch_Coin = 'snt'
         while True:
@@ -102,6 +102,61 @@ class Okex_Api:
                                    'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P,'_VolumeM':Volume_Inc})
         DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
         return DataFrame
+
+    def GetDataCoin(self,Coin,Clean = True):
+        try:
+            DataFrame = pd.DataFrame(columns=(
+            "Coin", "Cny", "High", "Low", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
+            data = pd.DataFrame(
+                okcoinSpot.getKline(self._Kline[self._KlineChosen], self._Lenth, self._EndLenth,
+                                    Coin)).iloc[:self._Lenth, ]
+            data[5] = data.iloc[:, 5].apply(pd.to_numeric)
+            if Clean:
+                data = data[data[5] >= 1000]
+                data = data.reset_index(drop=True)
+            Increase = (float(data.iloc[0, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
+            # Increase = str('%.2f' % (Increase) + '%')
+            price = float(data.iloc[0, 4])
+            Hi_price = round(float((data.iloc[0, 2])) * self._USDT_CNY, 2)
+            Lo_price = round(float((data.iloc[0, 3])) * self._USDT_CNY, 2)
+            Cny = round(price * self._USDT_CNY, 4)
+            Volume = float(data.iloc[0, 5])
+            Volume_Mean = round(Volume / 1000, 2)
+            Volume_Pre = round(Volume / 1000, 2)
+            Volume_Pre_P = 0
+            if Volume_Mean == 0:
+                Volume_Inc = 0
+            else:
+                Volume_Inc = round(((Volume_Pre - Volume_Mean) / Volume_Mean), 2)
+            Timeshrft = pd.Series({'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase,
+                                   'Volume_Pre_K': Volume_Pre,
+                                   'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
+            DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
+            for lenth in range(1, len(data)-1):
+                try:
+                    Increase = (float(data.iloc[lenth, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
+                    # Increase = str('%.2f' % (Increase) + '%')
+                    price = float(data.iloc[lenth, 4])
+                    Hi_price = round(float((data.iloc[lenth, 2])) * self._USDT_CNY, 2)
+                    Lo_price = round(float((data.iloc[lenth, 3])) * self._USDT_CNY, 2)
+                    Cny = round(price * self._USDT_CNY, 4)
+                    Volume = data.iloc[:lenth + 1, 5].apply(pd.to_numeric)
+                    Volume_Mean = round(Volume.mean() / 1000, 2)
+                    Volume_Pre = round(Volume.iloc[lenth] / 1000, 2)
+                    Volume_Pre_P = round((Volume[lenth] / Volume[lenth - 1]) - 1, 2)
+                    Volume_Inc = round(((Volume_Pre - Volume_Mean) / Volume_Mean), 2)
+                    Timeshrft = pd.Series(
+                        {'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase,
+                         'Volume_Pre_K': Volume_Pre,
+                         'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
+                    DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
+                except:
+                    break
+            return DataFrame
+            # print(DataFrame)
+        except:
+            time.sleep(5)
+            print('%s error' % Coin)
 
 def Run(default = True):
         Main = Okex_Api()

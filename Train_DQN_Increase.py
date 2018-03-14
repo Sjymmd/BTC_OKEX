@@ -160,7 +160,7 @@ def TestBack():
     env1 = TWStock(Data)
     state = env1.reset()
     agent = DQN(env1)
-    Total_Asset  = 1000
+    Total_Asset  = 400
     # Cny = Total_Asset
     for x in Coin:
         names['Amount%s' % x] = 0
