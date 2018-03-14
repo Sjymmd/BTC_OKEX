@@ -24,7 +24,7 @@ def Get_Dataframe(Coin):
             columns=("Coin", "Cny", "High", "Low", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
         data = pd.DataFrame(
             okcoinSpot.getKline(Okex_Api._Kline[Okex_Api._KlineChosen], Okex_Api._Lenth, Okex_Api._EndLenth,
-                                Coin)).iloc[:Okex_Api._Lenth - 1, ]
+                                Coin)).iloc[:Okex_Api._Lenth , ]
         data[5] = data.iloc[:, 5].apply(pd.to_numeric)
         data = data[data[5] >= 1000]
         data = data.reset_index(drop=True)
@@ -33,7 +33,7 @@ def Get_Dataframe(Coin):
         price = float(data.iloc[0, 4])
         Hi_price = round(float((data.iloc[0, 2])) * Okex_Api._USDT_CNY, 2)
         Lo_price = round(float((data.iloc[0, 3])) * Okex_Api._USDT_CNY, 2)
-        Cny = round(price * Okex_Api._USDT_CNY, 2)
+        Cny = round(price * Okex_Api._USDT_CNY, 4)
         Volume = float(data.iloc[0, 5])
         Volume_Mean = round(Volume / 1000, 2)
         Volume_Pre = round(Volume / 1000, 2)
@@ -46,14 +46,14 @@ def Get_Dataframe(Coin):
             {'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase, 'Volume_Pre_K': Volume_Pre,
              'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
         DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
-        for lenth in range(1, len(data) - 1):
+        for lenth in range(1, len(data)-1 ):
             try:
                 Increase = (float(data.iloc[lenth, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
                 # Increase = str('%.2f' % (Increase) + '%')
                 price = float(data.iloc[lenth, 4])
                 Hi_price = round(float((data.iloc[lenth, 2])) * Okex_Api._USDT_CNY, 2)
                 Lo_price = round(float((data.iloc[lenth, 3])) * Okex_Api._USDT_CNY, 2)
-                Cny = round(price * Okex_Api._USDT_CNY, 2)
+                Cny = round(price * Okex_Api._USDT_CNY, 4)
                 Volume = data.iloc[:lenth + 1, 5].apply(pd.to_numeric)
                 Volume_Mean = round(Volume.mean() / 1000, 2)
                 Volume_Pre = round(Volume.iloc[lenth] / 1000, 2)
