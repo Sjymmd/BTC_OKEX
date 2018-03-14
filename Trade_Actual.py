@@ -34,9 +34,15 @@ class Trade():
         if CoinName == 'CNY':
             Vol_Judge = True
         else:
-            df = Okex_Api.GetDataCoin(CoinName)
-            df2 = Okex_Api.GetDataCoin(CoinName,Clean=False)
-            Vol_Judge = df.iloc[-1, 1] == df2.iloc[-1, 1]
+            while True:
+                try:
+                    df = Okex_Api.GetDataCoin(CoinName)
+                    df2 = Okex_Api.GetDataCoin(CoinName,Clean=False)
+                    Vol_Judge = df.iloc[-1, 1] == df2.iloc[-1, 1]
+                    break
+                except:
+                    print('Vol_Judge_Error')
+                    time.sleep(5)
 
         if Vol_Judge:
 
