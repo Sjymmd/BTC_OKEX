@@ -135,80 +135,81 @@ class Trade():
 
                 names['QTY%s' % CoinName] = (Cny / Price) * 0.998
                 self.ValueAccount = CoinName
-
-            DataLen = []
-            for x in Coin:
-                scaler = preprocessing.StandardScaler()
-                while True:
-                    try:
-                        TestData = Okex_Api.GetDataCoin(x)
-                    except:
-                        # print('Get_Dataframe Error')
-                        time.sleep(10)
-                        continue
-                    if TestData is not None:
-                        break
-                    # print('Get %s error' % x)
-                TestData = TestData.iloc[:, 1:]
-                TestData_Initial = TestData.as_matrix()
-                names['TestPrice%s' % x] = TestData.iloc[:, 0]
-                names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
-                names['TestData%s' % x] = scaler.fit_transform(TestData_Initial)
-                DataLen.append(names['TestData%s' % x].shape[0])
-
-            lenData = min(DataLen)
-            names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
-            for x in range(lenData):
-                names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
-            names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
-
-            # print(names['TestPriceCNY'])
-            # print('MinLenth', lenData)
-            Tem = names['TestData%s' % Coin[0]]
-            Tem_Price = names['TestPrice%s' % Coin[0]]
-            names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
-            names['TestData%s' % Coin[0]] = Tem[int(len(Tem) - lenData):]
-            Data = names['TestData%s' % Coin[0]]
-            for x in Coin[1:]:
-                Tem = names['TestData%s' % x]
-                Tem_Price = names['TestPrice%s' % x]
-                names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
-                names['TestData%s' % x] = Tem[int(len(Tem) - lenData):]
-                Data = np.column_stack((Data, names['TestData%s' % x]))
-
-            # EndTime = time.time()
-            # print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
-
-            DataNow = Data[-1]
-
-            env1 = TWStock(DataNow)
-            state = DataNow
-            agent = DQN(env1, self_print=False)
-            agent.print = False
-
-            # env1.render()
-            action = agent.action(state)  # direct
-            tf.reset_default_graph()
-            self.action_last = action
-
-            CoinPrice = 0
-            for x in Coin:
-
-                CoinPrice += names['TestPrice%s' % x][-1] * names['QTY%s' % x]
-                if names['QTY%s' % x] > 0:
-                    print('%s QTY' % x, names['QTY%s' % x], ' Last_Price %s' % names['TestPrice%s' % x][-1][0])
-                    break
-
-            if names['QTYCNY'] > 0:
-                CoinPrice += USDT_CNY * names['QTYCNY']
-                print('CNY QTY', names['QTYCNY'], ' Last_Price %s' % USDT_CNY)
-            profit = CoinPrice - Initial_Asset
-
-            now = datetime.datetime.now()
-            now = now.strftime('%Y-%m-%d %H:%M:%S')
-            print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset))
         else:
-            print('Volume_K<1K')
+            print('%s Volume_K<1K'%CoinName)
+
+        DataLen = []
+        for x in Coin:
+            scaler = preprocessing.StandardScaler()
+            while True:
+                try:
+                    TestData = Okex_Api.GetDataCoin(x)
+                except:
+                    # print('Get_Dataframe Error')
+                    time.sleep(10)
+                    continue
+                if TestData is not None:
+                    break
+                # print('Get %s error' % x)
+            TestData = TestData.iloc[:, 1:]
+            TestData_Initial = TestData.as_matrix()
+            names['TestPrice%s' % x] = TestData.iloc[:, 0]
+            names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
+            names['TestData%s' % x] = scaler.fit_transform(TestData_Initial)
+            DataLen.append(names['TestData%s' % x].shape[0])
+
+        lenData = min(DataLen)
+        names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
+        for x in range(lenData):
+            names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
+        names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
+
+        # print(names['TestPriceCNY'])
+        # print('MinLenth', lenData)
+        Tem = names['TestData%s' % Coin[0]]
+        Tem_Price = names['TestPrice%s' % Coin[0]]
+        names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
+        names['TestData%s' % Coin[0]] = Tem[int(len(Tem) - lenData):]
+        Data = names['TestData%s' % Coin[0]]
+        for x in Coin[1:]:
+            Tem = names['TestData%s' % x]
+            Tem_Price = names['TestPrice%s' % x]
+            names['TestPrice%s' % x] = Tem_Price[int(len(Tem) - lenData):]
+            names['TestData%s' % x] = Tem[int(len(Tem) - lenData):]
+            Data = np.column_stack((Data, names['TestData%s' % x]))
+
+        # EndTime = time.time()
+        # print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+
+        DataNow = Data[-1]
+
+        env1 = TWStock(DataNow)
+        state = DataNow
+        agent = DQN(env1, self_print=False)
+        agent.print = False
+
+        # env1.render()
+        action = agent.action(state)  # direct
+        tf.reset_default_graph()
+        self.action_last = action
+
+        CoinPrice = 0
+        for x in Coin:
+
+            CoinPrice += names['TestPrice%s' % x][-1] * names['QTY%s' % x]
+            if names['QTY%s' % x] > 0:
+                print('%s QTY' % x, names['QTY%s' % x], ' Last_Price %s' % names['TestPrice%s' % x][-1][0])
+                break
+
+        if names['QTYCNY'] > 0:
+            CoinPrice += USDT_CNY * names['QTYCNY']
+            print('CNY QTY', names['QTYCNY'], ' Last_Price %s' % USDT_CNY)
+        profit = CoinPrice - Initial_Asset
+
+        now = datetime.datetime.now()
+        now = now.strftime('%Y-%m-%d %H:%M:%S')
+        print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset))
+
 
         Asset = Trade_api.GetAsset()
         print('Actual_Asset',Asset)
