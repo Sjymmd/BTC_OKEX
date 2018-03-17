@@ -12,12 +12,11 @@ from OkcoinSpotAPI import *
 import pandas as pd
 import time
 import datetime
-import numpy as np
 import warnings
 from config import apikey,secretkey
 warnings.filterwarnings("ignore")
 #
-okcoinRESTURL = 'www.okex.com'
+okcoinRESTURL = 'www.okex.cn'
 apikey=apikey
 secretkey=secretkey
 okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
