@@ -31,18 +31,20 @@ class Trade():
         CoinName = Coin[self.action_last] if self.action_last < len(Coin) else 'CNY'
         Chosen = [CoinName,self.ValueAccount]
 
-        if CoinName == 'CNY':
-            Vol_Judge = True
-        else:
-            while True:
-                try:
-                    df = Okex_Api.GetDataCoin(CoinName)
-                    df2 = Okex_Api.GetDataCoin(CoinName,Clean=False)
-                    Vol_Judge = df.iloc[-1, 1] == df2.iloc[-1, 1]
-                    break
-                except:
-                    print('Vol_Judge_Error')
-                    time.sleep(5)
+        # if CoinName == 'CNY':
+        #     Vol_Judge = True
+        # else:
+        #     while True:
+        #         try:
+        #             df = Okex_Api.GetDataCoin(CoinName)
+        #             df2 = Okex_Api.GetDataCoin(CoinName,Clean=False)
+        #             Vol_Judge = df.iloc[-1, 1] == df2.iloc[-1, 1]
+        #             break
+        #         except:
+        #             print('Vol_Judge_Error')
+        #             time.sleep(5)
+        
+        Vol_Judge = True
 
         if Vol_Judge:
 
