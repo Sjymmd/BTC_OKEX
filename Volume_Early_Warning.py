@@ -13,6 +13,7 @@ import pandas as pd
 import time
 import datetime
 import warnings
+import numpy as np
 from config import apikey,secretkey
 warnings.filterwarnings("ignore")
 #
@@ -102,7 +103,7 @@ class Okex_Api:
         DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
         return DataFrame
 
-    def GetDataCoin(self,Coin,Clean = True):
+    def GetDataCoin(self,Coin,Clean = False):
         try:
             DataFrame = pd.DataFrame(columns=(
             "Coin", "Cny", "High", "Low", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
@@ -116,17 +117,17 @@ class Okex_Api:
             Increase = (float(data.iloc[0, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
             # Increase = str('%.2f' % (Increase) + '%')
             price = float(data.iloc[0, 4])
-            Hi_price = round(float((data.iloc[0, 2])) * self._USDT_CNY, 2)
-            Lo_price = round(float((data.iloc[0, 3])) * self._USDT_CNY, 2)
-            Cny = round(price * self._USDT_CNY, 4)
+            Hi_price = float((data.iloc[0, 2])) * self._USDT_CNY
+            Lo_price = float((data.iloc[0, 3])) * self._USDT_CNY
+            Cny = price * self._USDT_CNY
             Volume = float(data.iloc[0, 5])
-            Volume_Mean = round(Volume / 1000, 2)
-            Volume_Pre = round(Volume / 1000, 2)
+            Volume_Mean = Volume / 1000
+            Volume_Pre = Volume / 1000
             Volume_Pre_P = 0
             if Volume_Mean == 0:
                 Volume_Inc = 0
             else:
-                Volume_Inc = round(((Volume_Pre - Volume_Mean) / Volume_Mean), 2)
+                Volume_Inc = ((Volume_Pre - Volume_Mean) / Volume_Mean)
             Timeshrft = pd.Series({'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase,
                                    'Volume_Pre_K': Volume_Pre,
                                    'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
@@ -136,14 +137,14 @@ class Okex_Api:
                     Increase = (float(data.iloc[lenth, 4]) - float(data.iloc[0, 1])) / float(data.iloc[0, 1]) * 100
                     # Increase = str('%.2f' % (Increase) + '%')
                     price = float(data.iloc[lenth, 4])
-                    Hi_price = round(float((data.iloc[lenth, 2])) * self._USDT_CNY, 2)
-                    Lo_price = round(float((data.iloc[lenth, 3])) * self._USDT_CNY, 2)
-                    Cny = round(price * self._USDT_CNY, 4)
+                    Hi_price = float((data.iloc[lenth, 2])) * self._USDT_CNY
+                    Lo_price = float((data.iloc[lenth, 3])) * self._USDT_CNY
+                    Cny = price * self._USDT_CNY
                     Volume = data.iloc[:lenth + 1, 5].apply(pd.to_numeric)
-                    Volume_Mean = round(Volume.mean() / 1000, 2)
-                    Volume_Pre = round(Volume.iloc[lenth] / 1000, 2)
-                    Volume_Pre_P = round((Volume[lenth] / Volume[lenth - 1]) - 1, 2)
-                    Volume_Inc = round(((Volume_Pre - Volume_Mean) / Volume_Mean), 2)
+                    Volume_Mean = Volume.mean() / 1000
+                    Volume_Pre = Volume.iloc[lenth] / 1000
+                    Volume_Pre_P = (Volume[lenth] / Volume[lenth - 1]) - 1
+                    Volume_Inc = ((Volume_Pre - Volume_Mean) / Volume_Mean)
                     Timeshrft = pd.Series(
                         {'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase,
                          'Volume_Pre_K': Volume_Pre,
@@ -151,6 +152,14 @@ class Okex_Api:
                     DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
                 except:
                     break
+
+            if Clean != True:
+                for x in range(len(DataFrame)):
+                    if np.isnan(DataFrame.iloc[x, -2]):
+                        DataFrame.iloc[x, -2] = DataFrame.iloc[x - 1, -2]
+                    elif np.isinf(DataFrame.iloc[x, -2]):
+                        DataFrame.iloc[x, -2] = 1000
+
             return DataFrame
             # print(DataFrame)
         except:
