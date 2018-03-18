@@ -159,6 +159,8 @@ class Okex_Api:
                         DataFrame.iloc[x, -2] = DataFrame.iloc[x - 1, -2]
                     elif np.isinf(DataFrame.iloc[x, -2]):
                         DataFrame.iloc[x, -2] = 1000
+                    if pd.isnull(DataFrame.iloc[x, -1]):
+                        DataFrame.iloc[x, -1] = 0
 
             return DataFrame
             # print(DataFrame)
