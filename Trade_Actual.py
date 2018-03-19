@@ -86,14 +86,19 @@ class Trade():
                 CoinName = self.ValueAccount
 
             Price = [USDT_CNY] if CoinName == 'CNY' else names['TestPrice%s' % CoinName][-1]
-            Price = round(Price[0], 2)
+            Price = Price[0]
             SellPrice = [USDT_CNY] if self.ValueAccount == 'CNY' else names['TestPrice%s' % self.ValueAccount][-1]
-            SellPrice = round(SellPrice[0], 2)
+            SellPrice = SellPrice[0]
 
             if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
                 CoinName = 'CNY'
-                Price = round([USDT_CNY][0], 2)
+                Price = [USDT_CNY][0]
                 print('Profit Get!')
+
+            if (SellPrice - self.Price_Begun) / self.Price_Begun < -0.1:
+                CoinName = 'CNY'
+                Price = [USDT_CNY][0]
+                print('Profit Loss!')
 
             if CoinName != self.ValueAccount:
                 Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
