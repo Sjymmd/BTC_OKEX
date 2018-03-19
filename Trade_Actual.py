@@ -108,21 +108,21 @@ class Trade():
                 print('Sell %s' % self.ValueAccount, 'Buy %s' % CoinName)
                 print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
 
-                # Trade_api.Get_Coin()
-                # Trade_api.Sell_Coin()
-                #
-                #
-                # while True:
-                #    if Trade_api.Check_FreezedCoin():
-                #        time.sleep(5)
-                #    else:
-                #        print('Sell Complete')
-                #        break
-                #
-                # print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
-                #
-                # Trade_api.Get_Coin()
-                # Trade_api.Buy_Coin(CoinName)
+                Trade_api.Get_Coin()
+                Trade_api.Sell_Coin()
+
+
+                while True:
+                   if Trade_api.Check_FreezedCoin():
+                       time.sleep(5)
+                   else:
+                       print('Sell Complete')
+                       break
+
+                print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
+
+                Trade_api.Get_Coin()
+                Trade_api.Buy_Coin(CoinName)
 
 
                 self.Price_Begun = Price
