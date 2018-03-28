@@ -17,7 +17,7 @@ import numpy as np
 from config import apikey,secretkey
 warnings.filterwarnings("ignore")
 #
-okcoinRESTURL = 'www.okex.cn'
+okcoinRESTURL = 'www.okex.com'
 apikey=apikey
 secretkey=secretkey
 okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
