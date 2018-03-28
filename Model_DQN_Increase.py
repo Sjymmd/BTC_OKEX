@@ -26,6 +26,7 @@ class TWStock():
         # return TestMatrix
 
     def step(self, action):
+
         Data = self.stock_data[self.stock_index:]
         x, y = Data.shape
         TemData = np.zeros([x - 1, int(y / 8)+1])
@@ -39,6 +40,7 @@ class TWStock():
         # print(TemData)
         # count =1 if self.last_coin == action else 0.98*0.98
         # NowData = TemData[0][action]
+
         NowData = self.stock_rewards[self.stock_index:]
         # print(NowData)
         gamma = 0.95
@@ -47,9 +49,9 @@ class TWStock():
         for x in range(1,3):
             # print(len(NowData))
             if self.last_coin == action:
-                f_reward += gamma * ((NowData[x]-NowData[x-1])/NowData[x])
+                f_reward += gamma * ((NowData[x]-NowData[x-1])/NowData[x-1])
             else:
-                f_reward += gamma * (((NowData[x] - NowData[x - 1]) / NowData[x])-fex)
+                f_reward += gamma * (((NowData[x] - NowData[x - 1]) / NowData[x-1])-fex)
             gamma = gamma ** 2
         # action_reward = (NowData*gamma + f_reward)*count
         action_reward  = float(f_reward)
@@ -86,7 +88,7 @@ e_greedy=0.9
 
 class DQN():
     # DQN Agent
-    def __init__(self, env,self_print = True):
+    def __init__(self,self_print = True):
         self.print = self_print
         self.memory_size = 500
         self.dueling = True
