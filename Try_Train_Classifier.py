@@ -87,6 +87,8 @@ class Classifier():
         Reward = 0
         Q_Value = 0
         Action_last = 0
+        D_price = 0
+
 
         ClassifierData = pd.DataFrame(columns=(
             "Reward", "Q_Value", "Target"))
@@ -115,6 +117,7 @@ class Classifier():
             # action_reward = (NowData*gamma + f_reward)*count
             action_reward = float(f_reward)
             reward = action_reward
+            d_price = max(DataNow[:i+1]) - DataNow[i]
             # print(i,len(Data) - 1, action, reward, agent.Q_Value)
 
             Price = [USDT_CNY] if CoinName=='CNY' else names['TestPrice%s' % CoinName][i]
@@ -134,8 +137,9 @@ class Classifier():
                 ValueAccount = CoinName
                 Profit = Cny - Total_Asset
 
-                insert = np.array([Reward, Q_Value,Action_last,Target])
+                insert = np.array([Reward, Q_Value,Action_last,D_price,Target])
 
+                D_price = d_price
                 Reward = reward
                 Q_Value = agent.Q_Value
                 Action_last = action
@@ -161,6 +165,7 @@ if __name__ == '__main__':
     from keras.models import load_model
 
     warnings.filterwarnings("ignore")
+    Classifier = Classifier()
     while True:
 
         while True:
@@ -170,7 +175,7 @@ if __name__ == '__main__':
                     break
                 time.sleep(10*60)
 
-        Classifier = Classifier()
+
         Data = Classifier.Get_ClassifierData()
 
         Feature_Train,Feature_Test,Target_Train\
@@ -193,7 +198,7 @@ if __name__ == '__main__':
                 model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
                 break
 
-        model.fit(Feature_Train, Target_Train,batch_size=10, nb_epoch=10000, verbose=0,
+        model.fit(Feature_Train, Target_Train,batch_size=10, nb_epoch=10000, verbose=1,
               validation_data=(Feature_Test, Target_Test))
         model.save('./Keras_Model/my_model.h5')
 
