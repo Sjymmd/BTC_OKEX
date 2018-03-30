@@ -22,8 +22,11 @@ class Classifier():
         Coin = Okex_Api.GetCoin()
         names = locals()
         StartTime = time.time()
-
-        USDT_CNY = okcoinfuture.exchange_rate()['rate']
+        try:
+                USDT_CNY = okcoinfuture.exchange_rate()['rate']
+        except:
+                print('Get_USDT_Error~6.3')
+                USDT_CNY = 6.3
 
         print('Start Loading Data...')
 
@@ -33,8 +36,9 @@ class Classifier():
 
         DataLen = []
 
+        scaler = preprocessing.StandardScaler()
         for x in Coin:
-            scaler = preprocessing.StandardScaler()
+
             while True:
                 try:
                     TestData = Okex_Api.GetDataCoin(x)
@@ -88,10 +92,9 @@ class Classifier():
         Q_Value = 0
         Action_last = 0
         D_price = 0
+        ValueAccount = 'CNY'
 
-
-        ClassifierData = pd.DataFrame(columns=(
-            "Reward", "Q_Value", "Target"))
+        ClassifierData = pd.DataFrame()
 
         for i in range(2,len(Data)):
             for x in Coin:
@@ -125,6 +128,7 @@ class Classifier():
             SellPrice = [USDT_CNY] if ValueAccount =='CNY' else names['TestPrice%s' % ValueAccount][i]
             SellPrice = SellPrice[0]
 
+
             if CoinName != ValueAccount :
                 Cny = names['Amount%s' % ValueAccount] * SellPrice*0.998
                 names['Amount%s' % ValueAccount] = 0
@@ -138,6 +142,7 @@ class Classifier():
                 Profit = Cny - Total_Asset
 
                 insert = np.array([Reward, Q_Value,Action_last,D_price,Target])
+                insert = scaler.fit_transform(insert.reshape((-1,1))).reshape(5,)
 
                 D_price = d_price
                 Reward = reward
@@ -151,6 +156,8 @@ class Classifier():
                     ClassifierData = ClassifierDa
                 else:
                     ClassifierData = np.row_stack((ClassifierData,ClassifierDa))
+
+                np.savetxt('./ClassifierData.csv', ClassifierData, delimiter=',')
         return ClassifierData
 
 
@@ -175,7 +182,7 @@ if __name__ == '__main__':
         #             break
         #         time.sleep(10*60)
 
-
+        # Data = np.loadtxt(open("./ClassifierData.csv", "rb"), delimiter=",", skiprows=0)
         Data = Classifier.Get_ClassifierData()
 
         Feature_Train,Feature_Test,Target_Train\
