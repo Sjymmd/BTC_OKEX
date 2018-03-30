@@ -168,12 +168,12 @@ if __name__ == '__main__':
     Classifier = Classifier()
     while True:
 
-        while True:
-                timenow = datetime.datetime.now()
-                minutes = timenow.minute
-                if minutes > 25 and minutes < 40:
-                    break
-                time.sleep(10*60)
+        # while True:
+        #         timenow = datetime.datetime.now()
+        #         minutes = timenow.minute
+        #         if minutes > 25 and minutes < 40:
+        #             break
+        #         time.sleep(10*60)
 
 
         Data = Classifier.Get_ClassifierData()
