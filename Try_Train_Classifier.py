@@ -141,15 +141,16 @@ class Classifier():
                 ValueAccount = CoinName
                 Profit = Cny - Total_Asset
 
-                insert = np.array([Reward, Q_Value,Action_last,D_price,Target])
-                insert = scaler.fit_transform(insert.reshape((-1,1))).reshape(5,)
+                insert = np.array([Reward, Q_Value,Action_last,D_price])
+                insert = scaler.fit_transform(insert.reshape((-1,1))).reshape(insert.shape[0],)
 
                 D_price = d_price
                 Reward = reward
                 Q_Value = agent.Q_Value
                 Action_last = action
 
-                ClassifierDa = (state.tolist()+insert.tolist())
+                ClassifierDa = (state.tolist()+insert.tolist()+[Target])
+                # print(ClassifierDa)
                 ClassifierDa = np.array([ClassifierDa])
                 # ClassifierDa = ClassifierDa.reshape(len(state)+len(insert),)
                 if i ==2:
