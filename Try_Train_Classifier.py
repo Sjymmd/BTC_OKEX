@@ -206,7 +206,7 @@ if __name__ == '__main__':
                 model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
                 break
 
-        model.fit(Feature_Train, Target_Train,batch_size=10, nb_epoch=10000, verbose=1,
+        model.fit(Feature_Train, Target_Train,batch_size=10, nb_epoch=10000, verbose=0,
               validation_data=(Feature_Test, Target_Test))
         model.save('./Keras_Model/my_model.h5')
 
@@ -214,7 +214,6 @@ if __name__ == '__main__':
         model = load_model('./Keras_Model/my_model.h5')
 
         score = model.evaluate(Feature_Test, Target_Test,)
-        # print(model.predict_classes(Feature_Test))
         print('Test score:', score[0])
         print('Test accuracy:', score[1])
 

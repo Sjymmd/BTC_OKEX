@@ -108,7 +108,7 @@ class Okex_Api:
     def GetDataCoin(self,Coin,Clean = False):
         try:
             DataFrame = pd.DataFrame(columns=(
-            "Coin", "Cny", "High", "Low", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM"))
+            "Coin", "Cny", "High", "Low", "Inc", "Volume_Pre_K", "Mean_Volume_K", "_VolumeS", "_VolumeM","Highest"))
             data = pd.DataFrame(
                 okcoinSpot.getKline(self._Kline[self._KlineChosen], self._Lenth, self._EndLenth,
                                     Coin)).iloc[:self._Lenth, ]
@@ -126,13 +126,14 @@ class Okex_Api:
             Volume_Mean = Volume / 1000
             Volume_Pre = Volume / 1000
             Volume_Pre_P = 0
+            Highest = float(max([Cny]))
             if Volume_Mean == 0:
                 Volume_Inc = 0
             else:
                 Volume_Inc = ((Volume_Pre - Volume_Mean) / Volume_Mean)
             Timeshrft = pd.Series({'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase,
                                    'Volume_Pre_K': Volume_Pre,
-                                   'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
+                                   'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc,'Highest':Highest})
             DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
             for lenth in range(1, len(data)-1):
                 try:
@@ -147,22 +148,23 @@ class Okex_Api:
                     Volume_Pre = Volume.iloc[lenth] / 1000
                     Volume_Pre_P = (Volume[lenth] / Volume[lenth - 1]) - 1
                     Volume_Inc = ((Volume_Pre - Volume_Mean) / Volume_Mean)
+                    Highest = float(max(data.iloc[:lenth+1, 4]))*self._USDT_CNY
                     Timeshrft = pd.Series(
                         {'Coin': Coin, 'Cny': Cny, 'High': Hi_price, 'Low': Lo_price, 'Inc': Increase,
                          'Volume_Pre_K': Volume_Pre,
-                         'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc})
+                         'Mean_Volume_K': Volume_Mean, '_VolumeS': Volume_Pre_P, '_VolumeM': Volume_Inc,'Highest':Highest})
                     DataFrame = DataFrame.append(Timeshrft, ignore_index=True)
                 except:
                     break
 
             if Clean != True:
                 for x in range(len(DataFrame)):
-                    if np.isnan(DataFrame.iloc[x, -2]):
-                        DataFrame.iloc[x, -2] = DataFrame.iloc[x - 1, -2]
-                    elif np.isinf(DataFrame.iloc[x, -2]):
-                        DataFrame.iloc[x, -2] = 1000
-                    if pd.isnull(DataFrame.iloc[x, -1]):
-                        DataFrame.iloc[x, -1] = 0
+                    if np.isnan(DataFrame.iloc[x, -3]):
+                        DataFrame.iloc[x, -3] = DataFrame.iloc[x - 1, -3]
+                    elif np.isinf(DataFrame.iloc[x, -3]):
+                        DataFrame.iloc[x, -3] = 1000
+                    if pd.isnull(DataFrame.iloc[x, -2]):
+                        DataFrame.iloc[x, -2] = 0
 
             return DataFrame
             # print(DataFrame)

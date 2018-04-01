@@ -29,13 +29,13 @@ class TWStock():
 
         Data = self.stock_data[self.stock_index:]
         x, y = Data.shape
-        TemData = np.zeros([x - 1, int(y / 8)+1])
-        z = 0
-        for j in range(0, y):
-            if j % 8 == 0:
-                for i in range(1, x):
-                    TemData[i - 1][z] = (Data[i][j] - Data[i - 1][j]) / abs(Data[i - 1][j])
-                z += 1
+        # TemData = np.zeros([x - 1, int(y / 8)+1])
+        # z = 0
+        # for j in range(0, y):
+        #     if j % 8 == 0:
+        #         for i in range(1, x):
+        #             TemData[i - 1][z] = (Data[i][j] - Data[i - 1][j]) / abs(Data[i - 1][j])
+        #         z += 1
         # MaxArray = np.amax(TemData[1:], axis=1)
         # print(TemData)
         # count =1 if self.last_coin == action else 0.98*0.98
@@ -106,11 +106,11 @@ class DQN():
         # self.action_dim = env.action_space.n
         self.memory_size = memory_size
         self.batch_size = batch_size
-        self.state_dim = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str))*8)
-        self.action_dim =int(self.state_dim/8+1)
+        self.state_dim = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str))*9)
+        self.action_dim =int(self.state_dim/9+1)
 
-        self.n_features = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str))*8)
-        self.n_actions = int(self.state_dim/8+1)
+        self.n_features = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str))*9)
+        self.n_actions = int(self.state_dim/9+1)
         self.cost_his = []
 
         self.create_Q_network()
