@@ -183,6 +183,8 @@ if __name__ == '__main__':
         #             break
         #         time.sleep(10*60)
 
+
+
         # Data = np.loadtxt(open("./ClassifierData.csv", "rb"), delimiter=",", skiprows=0)
         Data = Classifier.Get_ClassifierData()
 
@@ -217,3 +219,5 @@ if __name__ == '__main__':
         print('Test score:', score[0])
         print('Test accuracy:', score[1])
 
+        import gc
+        gc.collect()
