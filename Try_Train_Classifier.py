@@ -183,8 +183,6 @@ if __name__ == '__main__':
         #             break
         #         time.sleep(10*60)
 
-
-
         # Data = np.loadtxt(open("./ClassifierData.csv", "rb"), delimiter=",", skiprows=0)
         Data = Classifier.Get_ClassifierData()
 
@@ -199,10 +197,10 @@ if __name__ == '__main__':
                 break
             except:
                 model = Sequential()
-                model.add(Dense(Data.shape[1]-1*2,input_dim=Data.shape[1]-1, init='uniform', activation='relu'))
-                model.add(Dropout(0.5))
+                model.add(Dense((Data.shape[1]-1)*2,input_dim=Data.shape[1]-1, init='uniform', activation='relu'))
+                model.add(Dropout(0.2))
                 model.add(Dense(Data.shape[1]-1, activation='relu'))
-                model.add(Dropout(0.5))
+                model.add(Dropout(0.2))
                 model.add(Dense(Data.shape[1]-1, activation='relu'))
                 model.add(Dense(1, init='uniform', activation='sigmoid'))
                 model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
@@ -216,6 +214,7 @@ if __name__ == '__main__':
         model = load_model('./Keras_Model/my_model.h5')
 
         score = model.evaluate(Feature_Test, Target_Test,)
+        print(model.predict_classes(Feature_Test))
         print('Test score:', score[0])
         print('Test accuracy:', score[1])
 
