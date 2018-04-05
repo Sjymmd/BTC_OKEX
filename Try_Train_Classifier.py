@@ -217,7 +217,7 @@ if __name__ == '__main__':
         model = load_model('./Keras_Model/my_model.h5')
 
         score = model.evaluate(Feature_Test, Target_Test,)
-        print(model.predict_classes(Feature_Test))
+        # print(model.predict_classes(Feature_Test))
         print('Test score:', score[0])
         print('Test accuracy:', score[1])
 
