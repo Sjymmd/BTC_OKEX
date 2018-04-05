@@ -159,6 +159,7 @@ class Classifier():
                     ClassifierData = np.row_stack((ClassifierData,ClassifierDa))
 
                 np.savetxt('./ClassifierData.csv', ClassifierData, delimiter=',')
+
         return ClassifierData
 
 
@@ -173,7 +174,9 @@ if __name__ == '__main__':
     from keras.models import load_model
 
     warnings.filterwarnings("ignore")
+
     Classifier = Classifier()
+
     while True:
 
         # while True:
@@ -218,5 +221,6 @@ if __name__ == '__main__':
         print('Test score:', score[0])
         print('Test accuracy:', score[1])
 
+        tf.reset_default_graph()
         import gc
         gc.collect()
