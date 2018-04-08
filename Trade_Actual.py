@@ -2,6 +2,8 @@ from sklearn import preprocessing
 from Model_DQN_Increase import *
 from Trade import *
 
+from keras.models import load_model
+
 warnings.filterwarnings("ignore")
 
 # now = datetime.datetime.now()
@@ -9,6 +11,7 @@ warnings.filterwarnings("ignore")
 # print(now)
 
 Okex_Api = Okex_Api()
+Okex_Api._Lenth = 24*100
 Coin = Okex_Api.GetCoin()
 
 names = locals()
@@ -21,128 +24,14 @@ class Trade():
         self.action_last = action_last
         self.ValueAccount = ValuAccount
         self.Price_Begun = Price_Begun
+        self.Trade_Sign = 1
+        self.Trade_Sign_Pre = 1
+        self.ProfitLoss = 1
 
     def main(self):
 
         # print('Start Loading Data...')
         # StartTime = time.time()
-
-        CoinName = Coin[self.action_last] if self.action_last < len(Coin) else 'CNY'
-        Chosen = [CoinName,self.ValueAccount]
-
-        # if CoinName == 'CNY':
-        #     Vol_Judge = True
-        # else:
-        #     while True:
-        #         try:
-        #             df = Okex_Api.GetDataCoin(CoinName)
-        #             df2 = Okex_Api.GetDataCoin(CoinName,Clean=False)
-        #             Vol_Judge = df.iloc[-1, 1] == df2.iloc[-1, 1]
-        #             break
-        #         except:
-        #             print('Vol_Judge_Error')
-        #             time.sleep(5)
-
-        Vol_Judge = True
-
-        if Vol_Judge:
-
-            for x in Chosen:
-
-                if x =='CNY':
-                    names['TestPriceCNY'] = pd.DataFrame(columns=['A'])
-                    for x in range(10):
-                        names['TestPriceCNY'] = names['TestPriceCNY'].append({'A': USDT_CNY}, ignore_index=True)
-                    names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
-                else:
-                    while True:
-                        try:
-                            TestData = Okex_Api.GetDataCoin(x)
-                        except:
-                            # print('Get_Dataframe Error')
-                            time.sleep(10)
-                            continue
-                        if TestData is not None:
-                            break
-                        # print('Get %s error' % x)
-                    TestData = TestData.iloc[:, 1:]
-                    names['TestPrice%s' % x] = TestData.iloc[:, 0]
-                    names['TestPrice%s' % x] = names['TestPrice%s' % x].reshape(-1, 1)
-
-            DataNow = names['TestPrice%s' % CoinName]
-
-            gamma = 0.95
-            fex = 1 / (0.998 * 0.998) - 1
-            f_reward = 0
-            for x in range(1, 3):
-                # print(len(NowData))
-                f_reward += gamma * (((DataNow[-x] - DataNow[-x - 1]) / DataNow[-x]) - fex)
-                gamma = gamma ** 2
-            # action_reward = (NowData*gamma + f_reward)*count
-
-            action_reward = float(f_reward)
-            # print('Action_reward_last',action_reward,'Action_last',self.action_last)
-            if action_reward < 0.01 and CoinName != 'CNY':
-                CoinName = self.ValueAccount
-
-            Price = [USDT_CNY] if CoinName == 'CNY' else names['TestPrice%s' % CoinName][-1]
-            Price = Price[0]
-            SellPrice = [USDT_CNY] if self.ValueAccount == 'CNY' else names['TestPrice%s' % self.ValueAccount][-1]
-            SellPrice = SellPrice[0]
-
-            if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
-                CoinName = 'CNY'
-                Price = [USDT_CNY][0]
-                print('Profit Get!')
-
-            if (SellPrice - self.Price_Begun) / self.Price_Begun < -0.1:
-                CoinName = 'CNY'
-                Price = [USDT_CNY][0]
-                print('Profit Loss!')
-
-            if CoinName != self.ValueAccount:
-                Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
-
-                names['QTY%s' % self.ValueAccount] = 0
-
-                now = datetime.datetime.now()
-                now = now.strftime('%Y-%m-%d %H:%M:%S')
-
-                # print('\033[32;0mSell %s\033[0m' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
-                # print('\033[31;0mBuy %s\033[0m' % CoinName, 'Price', Price, 'Time', now)
-                print('Sell %s' % self.ValueAccount, 'Buy %s' % CoinName)
-                print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
-
-                Trade_api.Get_Coin()
-                Trade_api.Sell_Coin()
-
-
-                while True:
-                   if Trade_api.Check_FreezedCoin():
-                       time.sleep(5)
-                   else:
-                       print('Sell Complete')
-                       break
-
-                print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
-
-                Trade_api.Get_Coin()
-                Trade_api.Buy_Coin(CoinName)
-
-
-                self.Price_Begun = Price
-                f = open(Trade_Path, 'r+')
-                f.read()
-                f.write('\n%s' % now)
-                f.write('\nSell %s , Price %s, Current_Profit %s' % (
-                    self.ValueAccount, SellPrice, Cny - Initial_Asset))
-                f.write('\nBuy %s , Price %s' % (CoinName, Price))
-                f.close()
-
-                names['QTY%s' % CoinName] = (Cny / Price) * 0.998
-                self.ValueAccount = CoinName
-        else:
-            print('%s Volume_K<1K'%CoinName)
 
         DataLen = []
         for x in Coin:
@@ -171,7 +60,7 @@ class Trade():
         names['TestPrice%s' % 'CNY'] = names['TestPrice%s' % 'CNY']['A'].reshape(-1, 1)
 
         # print(names['TestPriceCNY'])
-        # print('MinLenth', lenData)
+        print('MinLenth', lenData)
         Tem = names['TestData%s' % Coin[0]]
         Tem_Price = names['TestPrice%s' % Coin[0]]
         names['TestPrice%s' % Coin[0]] = Tem_Price[int(len(Tem) - lenData):]
@@ -184,20 +73,110 @@ class Trade():
             names['TestData%s' % x] = Tem[int(len(Tem) - lenData):]
             Data = np.column_stack((Data, names['TestData%s' % x]))
 
-        # EndTime = time.time()
-        # print('Loading Data Using_Time: %d min' % int((EndTime - StartTime) / 60))
+        number = -1
 
-        DataNow = Data[-1]
+        agent = DQN(self_print=False)
+        state = Data[number]
 
-        env1 = TWStock(DataNow)
-        state = DataNow
-        agent = DQN(env1, self_print=False)
-        agent.print = False
-
-        # env1.render()
-        action = agent.action(state)  # direct
-        tf.reset_default_graph()
+        action = agent.action(state)
         self.action_last = action
+
+        CoinName = Coin[self.action_last] if self.action_last < len(Coin) else 'CNY'
+        DataNow = names['TestPrice%s' % CoinName]
+        # print(DataNow)
+        gamma = 0.95
+        fex = 1 / (0.998 * 0.998) - 1
+        f_reward = 0
+        for x in range(0, 2):
+            f_reward += gamma * (((DataNow[number - x] - DataNow[number - x - 1]) / DataNow[number - x]) - fex)
+            gamma = gamma ** 2
+        action_reward = float(f_reward)
+        d_price = max(DataNow) - DataNow[number]
+
+        insert = np.array([action_reward, agent.Q_Value, action, d_price])
+
+        ClassifierDa = (state.tolist() + insert.tolist())
+        ClassifierDa = np.array([ClassifierDa])
+
+        ClassifierModel = load_model('./Keras_Model/my_model.h5')
+
+        Pre = ClassifierModel.predict_classes(ClassifierDa, verbose=0)
+
+        tf.reset_default_graph()
+
+        Price = [USDT_CNY] if CoinName == 'CNY' else names['TestPrice%s' % CoinName][number]
+        Price = Price[0]
+        SellPrice = [USDT_CNY] if self.ValueAccount == 'CNY' else names['TestPrice%s' % self.ValueAccount][number]
+        SellPrice = SellPrice[0]
+
+        if self.Trade_Sign_Pre == 0:
+            self.Trade_Sign = 0
+
+        if Pre < 1:
+            CoinName = self.ValueAccount
+
+        if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
+            CoinName = 'CNY'
+            Price = [USDT_CNY][0]
+            print('Profit Get!')
+            if self.Trade_Sign == 0:
+                self.Trade_Sign = 1
+                self.Trade_Sign_Pre = 1
+
+        if (SellPrice - self.Price_Begun) / self.Price_Begun < -0.1:
+            CoinName = 'CNY'
+            Price = [USDT_CNY][0]
+            print('Profit Loss!')
+            self.Trade_Sign_Pre = 0
+            self.ProfitLoss = 0
+
+        if CoinName != self.ValueAccount:
+
+            if self.Trade_Sign == 1:
+
+                if self.Trade_Sign_Pre == 1 and self.ProfitLoss == 0:
+                    CoinName = 'CNY'
+                    Price = [USDT_CNY][0]
+                    self.ProfitLoss = 1
+
+                else:
+
+                    Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
+                    names['QTY%s' % self.ValueAccount] = 0
+
+                    now = datetime.datetime.now()
+                    now = now.strftime('%Y-%m-%d %H:%M:%S')
+
+                    print('Time', number, 'Sell %s' % self.ValueAccount, 'Buy %s' % CoinName, 'Price', Price)
+                    print('Sell %s' % self.ValueAccount, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
+
+                    names['QTY%s' % CoinName] = (Cny / Price) * 0.998
+
+                    Trade_api.Get_Coin()
+                    Trade_api.Sell_Coin()
+
+                    while True:
+                        if Trade_api.Check_FreezedCoin():
+                            time.sleep(5)
+                        else:
+                            print('Sell Complete')
+                            break
+
+                    print('Buy %s' % CoinName, 'Price', Price, 'Time', now)
+
+                    Trade_api.Get_Coin()
+                    Trade_api.Buy_Coin(CoinName)
+
+                    f = open(Trade_Path, 'r+')
+                    f.read()
+                    f.write('\n%s' % now)
+                    f.write('\nSell %s , Price %s, Current_Profit %s' % (
+                        self.ValueAccount, SellPrice, Cny - Initial_Asset))
+                    f.write('\nBuy %s , Price %s' % (CoinName, Price))
+                    f.close()
+
+            self.Price_Begun = Price
+            self.ValueAccount = CoinName
 
         CoinPrice = 0
         for x in Coin:
@@ -216,7 +195,6 @@ class Trade():
         now = now.strftime('%Y-%m-%d %H:%M:%S')
         print(now, 'Profit:%d' % profit, 'Total Asset:%d' % (profit + Initial_Asset))
 
-
         Asset = Trade_api.GetAsset()
         print('Actual_Asset',Asset)
 
@@ -225,8 +203,18 @@ if __name__ == '__main__':
     Coin = np.loadtxt("./logs/Coin_Select.txt", dtype=np.str)
     now = datetime.datetime.now()
     now = now.strftime('%Y-%m-%d %H:%M:%S')
-    USDT_CNY = okcoinfuture.exchange_rate()['rate']
-    Initial_Asset = 1000
+    Trade_api = Trade_Api()
+
+    while True:
+        try:
+            USDT_CNY = okcoinfuture.exchange_rate()['rate']
+            Initial_Asset = Trade_api.GetAsset()
+            break
+        except:
+            # print('Get_Dataframe Error')
+            time.sleep(10)
+            continue
+
     try:
         Trade_Path = './logs/Trade_Log.txt'
         f = open(Trade_Path, 'r+')
@@ -265,18 +253,15 @@ if __name__ == '__main__':
     Trade = Trade(ValuAccount=ValueAccount, action_last=action_last, Price_Begun=Price_Begun)
 
     from apscheduler.schedulers.blocking import BlockingScheduler
-
     sched = BlockingScheduler()
-    Trade_api = Trade_Api()
 
     def job():
         Trade.main()
 
-
     while True:
 
         # sched.add_job(job, 'interval', seconds=30)
-        sched.add_job(job, 'cron', minute=2)
+        sched.add_job(job, 'cron', minute=1)
 
         try:
             sched.start()
@@ -285,4 +270,3 @@ if __name__ == '__main__':
             print('定时任务出错')
             time.sleep(10)
             continue
-
