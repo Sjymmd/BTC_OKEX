@@ -11,7 +11,6 @@ warnings.filterwarnings("ignore")
 # print(now)
 
 Okex_Api = Okex_Api()
-Okex_Api._Lenth = 24*100
 Coin = Okex_Api.GetCoin()
 
 names = locals()
@@ -204,16 +203,7 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     now = now.strftime('%Y-%m-%d %H:%M:%S')
     Trade_api = Trade_Api()
-
-    while True:
-        try:
-            USDT_CNY = okcoinfuture.exchange_rate()['rate']
-            Initial_Asset = Trade_api.GetAsset()
-            break
-        except:
-            # print('Get_Dataframe Error')
-            time.sleep(10)
-            continue
+    USDT_CNY = Okex_Api._USDT_CNY
 
     try:
         Trade_Path = './logs/Trade_Log.txt'
@@ -222,7 +212,7 @@ if __name__ == '__main__':
         # f.read()
         # f.write('CreateTime %s' % now)
         f.close()
-
+        Initial_Asset = float(str(ValueAccount_Txt[0]).split(' ')[-1])
         Current_Profit = float(str(ValueAccount_Txt[-2]).split(' ')[-1][:-1])
         Price_Begun = float(str(ValueAccount_Txt[-1]).split(' ')[-1])
         Total_Asset = Initial_Asset + Current_Profit
@@ -233,7 +223,7 @@ if __name__ == '__main__':
     except:
 
         ValueAccount = 'CNY'
-        Total_Asset = Initial_Asset
+        Total_Asset = Trade_api.GetAsset()
         QTY = float(Total_Asset / USDT_CNY)
         Price_Begun = USDT_CNY
         print("Initial Model")
