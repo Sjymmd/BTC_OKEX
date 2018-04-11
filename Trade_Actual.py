@@ -197,6 +197,8 @@ class Trade():
         Asset = Trade_api.GetAsset()
         print('Actual_Asset',Asset)
 
+        print('Value','Pre',Pre,'self.Trade_Sign',self.Trade_Sign,'self.ProfitLoss',self.ProfitLoss,'self.action_last',self.action_last )
+
 if __name__ == '__main__':
 
     Coin = np.loadtxt("./logs/Coin_Select.txt", dtype=np.str)

@@ -22,11 +22,7 @@ class Classifier():
         Coin = Okex_Api.GetCoin()
         names = locals()
         StartTime = time.time()
-        try:
-                USDT_CNY = okcoinfuture.exchange_rate()['rate']
-        except:
-                print('Get_USDT_Error~6.3')
-                USDT_CNY = 6.3
+        USDT_CNY = Okex_Api._USDT_CNY
 
         print('Start Loading Data...')
 
@@ -98,6 +94,7 @@ class Classifier():
 
         for i in range(2,len(Data)):
             for x in Coin:
+
                 if names['Amount%s' % x] >0:
                     ValueAccount = x
                 elif names['AmountCNY']>0:
@@ -134,12 +131,14 @@ class Classifier():
                 names['Amount%s' % ValueAccount] = 0
 
                 Target = 1 if  Profit <  Cny - Total_Asset else 0
+                # Target = 1 if Price_Begun <= SellPrice else 0
 
                 Price_Begun = Price
 
                 names['Amount%s' % CoinName] = (Cny / Price)*0.998
                 ValueAccount = CoinName
                 Profit = Cny - Total_Asset
+                # Profit =float( SellPrice/Price_Begun -1)
 
                 insert = np.array([Reward, Q_Value,Action_last,D_price])
                 insert = scaler.fit_transform(insert.reshape((-1,1))).reshape(insert.shape[0],)
@@ -158,7 +157,7 @@ class Classifier():
                 else:
                     ClassifierData = np.row_stack((ClassifierData,ClassifierDa))
 
-                np.savetxt('./ClassifierData.csv', ClassifierData, delimiter=',')
+        np.savetxt('./ClassifierData.csv', ClassifierData, delimiter=',')
 
         return ClassifierData
 
