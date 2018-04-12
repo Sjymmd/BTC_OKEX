@@ -1,6 +1,6 @@
 from sklearn import preprocessing
 from Model_DQN_Increase import *
-from Trade import *
+from Class_Trade import *
 
 from keras.models import load_model
 
@@ -197,7 +197,7 @@ class Trade():
         Asset = Trade_api.GetAsset()
         print('Actual_Asset',Asset)
 
-        print('Value','Pre',Pre,'self.Trade_Sign',self.Trade_Sign,'self.ProfitLoss',self.ProfitLoss,'self.action_last',self.action_last )
+        # print('Value','Pre',Pre,'self.Trade_Sign',self.Trade_Sign,'self.ProfitLoss',self.ProfitLoss,'self.action_last',self.action_last )
 
 if __name__ == '__main__':
 

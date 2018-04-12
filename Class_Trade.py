@@ -1,6 +1,7 @@
 from Volume_Early_Warning import *
 
 class Trade_Api(object):
+
     def __init__(self):
         self.Get_Coin()
 
