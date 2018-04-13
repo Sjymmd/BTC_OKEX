@@ -27,20 +27,6 @@ class TWStock():
 
     def step(self, action):
 
-        Data = self.stock_data[self.stock_index:]
-        x, y = Data.shape
-        # TemData = np.zeros([x - 1, int(y / 8)+1])
-        # z = 0
-        # for j in range(0, y):
-        #     if j % 8 == 0:
-        #         for i in range(1, x):
-        #             TemData[i - 1][z] = (Data[i][j] - Data[i - 1][j]) / abs(Data[i - 1][j])
-        #         z += 1
-        # MaxArray = np.amax(TemData[1:], axis=1)
-        # print(TemData)
-        # count =1 if self.last_coin == action else 0.98*0.98
-        # NowData = TemData[0][action]
-
         NowData = self.stock_rewards[self.stock_index:]
         # print(NowData)
         gamma = 0.95
@@ -128,7 +114,7 @@ class DQN():
         self.session = tf.InteractiveSession()
         self.session.run(tf.initialize_all_variables())
 
-        checkpoint = tf.train.get_checkpoint_state("Save_Dueling_Networks")
+        checkpoint = tf.train.get_checkpoint_state("DQN_Model")
 
         if checkpoint and checkpoint.model_checkpoint_path:
             self.saver.restore(self.session, checkpoint.model_checkpoint_path)
@@ -246,7 +232,7 @@ class DQN():
         })
         # save network every 100 iteration
         if self.time_step % 50 == 0:
-            self.saver.save(self.session, 'Save_Dueling_Networks/' + 'network' + '-dqn', global_step=self.time_step)
+            self.saver.save(self.session, './DQN_Model/' + 'network' + '-dqn', global_step=self.time_step)
 
     def egreedy_action(self, state):
         Q_value = self.q_eval.eval(feed_dict={

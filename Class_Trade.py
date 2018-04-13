@@ -1,4 +1,4 @@
-from Volume_Early_Warning import *
+from Class_OKEX_API import *
 
 class Trade_Api(object):
 

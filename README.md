@@ -3,5 +3,9 @@ Hope Useful!
  Use `OKEX` API to make quantitative transactions
 ## Written by Python
     Recording something important
-* Train_DQN_Increase.py
-* Model_DQN_Increase.py
+* Run_Trade.py
+* Run_TestBack.py
+* Train_Classifier.py
+* Train_DQN.py
+
+
