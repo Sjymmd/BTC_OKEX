@@ -4,7 +4,7 @@ from Model_DQN import *
 import warnings
 warnings.filterwarnings("ignore")
 
-Coin = np.loadtxt("./logs/Coin_Select.txt",dtype=np.str)
+Coin = np.loadtxt("./Log/Coin_Select.txt",dtype=np.str)
 EPISODE = 10000
 TEST = 1
 
@@ -94,7 +94,7 @@ def Main():
             # print('episode: ', episode, 'Evaluation Average Reward:', ave_reward)
             rate_string = ""
         # tf.summary.merge_all()
-        # tf.summary.FileWriter('./logs')
+        # tf.summary.FileWriter('./Log')
 
     print('Train_Rewards', ave_train_rewards, 'Training Rate:', ave_rate, 'Loss', ave_loss)
     print('episode: ', episode, 'Evaluation Average Reward:', ave_reward)

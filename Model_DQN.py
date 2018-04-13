@@ -13,7 +13,7 @@ class TWStock():
     def __init__(self, stock_data):
         self.stock_data = stock_data
         self.stock_index = 0
-        self.last_coin = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str)))
+        self.last_coin = int(len(np.loadtxt("./Log/Coin_Select.txt", dtype=np.str)))
         self.stock_rewards = []
 
     def render(self):
@@ -92,10 +92,10 @@ class DQN():
         # self.action_dim = env.action_space.n
         self.memory_size = memory_size
         self.batch_size = batch_size
-        self.state_dim = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str))*9)
+        self.state_dim = int(len(np.loadtxt("./Log/Coin_Select.txt", dtype=np.str))*9)
         self.action_dim =int(self.state_dim/9+1)
 
-        self.n_features = int(len(np.loadtxt("./logs/Coin_Select.txt", dtype=np.str))*9)
+        self.n_features = int(len(np.loadtxt("./Log/Coin_Select.txt", dtype=np.str))*9)
         self.n_actions = int(self.state_dim/9+1)
         self.cost_his = []
 

@@ -12,15 +12,15 @@ warnings.filterwarnings("ignore")
 Get_Data = Get_Data()
 Coin = Get_Data.Coin
 Classifier = False
-Trade_Path = './logs/Trade_Log.txt'
+Trade_Path = './Log/Trade_Log.txt'
 
 if Classifier:
     Path = './Keras_Model/my_model_classifier.h5'
-    Trade_Path_Testback = './logs/Trade_TestBack_Classifier.txt'
+    Trade_Path_Testback = './Log/Trade_TestBack_Classifier.txt'
     limit = 1
 else:
     Path = './Keras_Model/my_model.h5'
-    Trade_Path_Testback = './logs/Trade_TestBack.txt'
+    Trade_Path_Testback = './Log/Trade_TestBack.txt'
     limit = 1
 
 

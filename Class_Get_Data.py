@@ -7,7 +7,7 @@ class Get_Data():
     def __init__(self):
 
         self._USDT_CNY = Okex_Api._USDT_CNY
-        self.Coin = np.loadtxt("./logs/Coin_Select.txt", dtype=np.str).tolist()
+        self.Coin = np.loadtxt("./Log/Coin_Select.txt", dtype=np.str).tolist()
 
     def GetData(self,save = False):
 

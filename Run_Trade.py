@@ -155,7 +155,7 @@ if __name__ == '__main__':
     now = now.strftime('%Y-%m-%d %H:%M:%S')
 
     try:
-        Trade_Path = './logs/Trade_Log.txt'
+        Trade_Path = './Log/Trade_Log.txt'
         f = open(Trade_Path, 'r+')
         ValueAccount_Txt = f.readlines()
         # f.read()

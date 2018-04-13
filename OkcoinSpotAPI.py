@@ -21,11 +21,23 @@ def buildMySign(params, secretKey):
 
 
 def httpGet(url, resource, params=''):
-    conn = http.client.HTTPSConnection(url, timeout=10)
-    conn.request("GET", resource + '?' + params)
-    # print(resource + '?' + params)
-    response = conn.getresponse()
-    data = response.read().decode('utf8')
+
+    try:
+
+        conn = http.client.HTTPSConnection(url, timeout=10)
+        conn.request("GET", resource + '?' + params)
+        # print(resource + '?' + params)
+        response = conn.getresponse()
+        data = response.read().decode('utf8')
+
+    except:
+
+        import requests
+        proxies = {'https': 'socks5://127.0.0.1:1080'}
+        url_in = 'https://'+url + resource + '?' + params
+        response = requests.get(url = url_in,timeout =10, proxies=proxies,verify=False)
+        data = response.content.decode('utf8')
+
     return json.loads(data)
 
 
@@ -34,14 +46,22 @@ def httpPost(url, resource, params):
         "Content-type": "application/x-www-form-urlencoded"
 
     }
-    conn = http.client.HTTPSConnection(url, timeout=10)
     temp_params = urllib.parse.urlencode(params)
-    # print("https://"+url+resource+"?"+str(temp_params))
-    conn.request("POST", resource, temp_params, headers)
-    response = conn.getresponse()
-    data = response.read().decode('utf-8')
-    params.clear()
-    conn.close()
+    try:
+
+        conn = http.client.HTTPSConnection(url, timeout=10)
+        # print("https://"+url+resource+"?"+str(temp_params))
+        conn.request("POST", resource, temp_params, headers)
+        response = conn.getresponse()
+        data = response.read().decode('utf-8')
+        params.clear()
+        conn.close()
+    except:
+
+        import requests
+        response = requests.post('https://' + url + resource, data=temp_params, headers=headers,timeout = 10)
+        data = response.content.decode('utf8')
+        params.clear()
     return data
 
 

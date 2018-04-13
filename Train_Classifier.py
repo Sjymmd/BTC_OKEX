@@ -9,7 +9,7 @@ class Classifier():
     def __init__(self):
 
         import numpy as np
-        self.Coin = np.loadtxt("./logs/Coin_Select.txt", dtype=np.str)
+        self.Coin = np.loadtxt("./Log/Coin_Select.txt", dtype=np.str)
 
     def GetData_Classifier(self):
 
