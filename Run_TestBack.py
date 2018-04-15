@@ -13,32 +13,30 @@ Get_Data = Get_Data()
 Coin = Get_Data.Coin
 
 Read_Trade_Log = False
-Classifier = False
+
 skiprows =1
-lenth = 200
+lenth = 240
+
+Max_Interval = 240
+k =2
+
+
 
 Trade_Path = './Log/Trade_Log.txt'
 
-if Classifier:
-    Path = './Keras_Model/my_model_classifier.h5'
-    Trade_Path_Testback = './Log/Trade_TestBack_Classifier.txt'
-    limit = 1
-else:
-    Path = './Keras_Model/my_model.h5'
-    Trade_Path_Testback = './Log/Trade_TestBack.txt'
-    limit = 1
+Path = './Keras_Model/my_model_classifier%d.h5'%k
+Trade_Path_Testback = './Log/Trade_TestBack_classifier%d.txt'%k
 
 
 
 class TestBack():
 
-    def __init__(self,skiprows = 0,lenth = 200, Price_Begun=Get_Data._USDT_CNY,action_last=len(Coin) ) :
+    def __init__(self, Price_Begun=Get_Data._USDT_CNY,action_last=len(Coin) ) :
 
         self.ValueAccount = action_last
         self.Price_Begun = Price_Begun
-        self.Classifier=  Classifier
         self.Path = Path
-        self.limit =limit
+        self.k =k
         self.skiprows = skiprows
         self.lenth = lenth
         self.GetData_DQN()
@@ -67,7 +65,8 @@ class TestBack():
                 f_reward += gamma * (((Price_Now[number - x] - Price_Now[number - x - 1]) / Price_Now[number - x]) - fex)
                 gamma = gamma ** 2
             action_reward = float(f_reward)
-            d_price = max(Price_Now[:number + 1]) - Price_Now[number]
+
+            d_price = max(Price_Now[number - Max_Interval  if (number-Max_Interval)>=0 else 0:number + 1]) - Price_Now[number]
 
             insert = np.array([action_reward, agent.Q_Value,action,d_price])
             insert = scaler.fit_transform(insert.reshape((-1, 1))).reshape(insert.shape[0], )
@@ -87,8 +86,8 @@ class TestBack():
 
         DQN_Data = self.DQN_Data
         ClassifierModel = load_model(self.Path)
-
-        f = open(Trade_Path_Testback, 'r+')
+        print('Successfully loaded : my_model_classifier%d'%self.k)
+        f = open(Trade_Path_Testback, 'w+')
         f.truncate()
         f.close()
 
@@ -98,11 +97,6 @@ class TestBack():
 
         for number in range(len(DQN_Data)):
 
-            if number ==0:
-                if self.Classifier:
-                    print('Successfully loaded : my_model_classifier')
-                else:
-                    print('Successfully loaded : my_model')
             Classifier_Data = DQN_Data[number,:].reshape(1,DQN_Data[number,:].shape[0])
             Pre = ClassifierModel.predict_classes(Classifier_Data,verbose=0)
 
@@ -114,7 +108,7 @@ class TestBack():
             if Trade_Sign_Pre == 0 :
                 Trade_Sign =0
 
-            if Pre < self.limit :
+            if Pre < self.k-1 :
                 Action = self.ValueAccount
 
             if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
@@ -228,7 +222,7 @@ if __name__ == '__main__':
 
     names['QTY%s' % action_last] = QTY
 
-    TestBack = TestBack(lenth = lenth,skiprows=skiprows, action_last=action_last,Price_Begun=Price_Begun)
+    TestBack = TestBack( action_last=action_last,Price_Begun=Price_Begun)
     TestBack.Run_Testback()
 
 

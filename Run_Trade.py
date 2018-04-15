@@ -10,11 +10,13 @@ Get_Data = Get_Data()
 Coin = Get_Data.Coin
 Trade_api = Trade_Api()
 names = locals()
-skiprows = 200
+
+skiprows = 240
+k = 2
 
 class Trade():
 
-    def __init__(self,Price_Begun,skiprows = 0, action_last=len(Coin)):
+    def __init__(self,Price_Begun, action_last=len(Coin)):
 
         self.ValueAccount = action_last
         self.Price_Begun = Price_Begun
@@ -22,6 +24,7 @@ class Trade():
         self.Trade_Sign_Pre = 1
         self.ProfitLoss = 1
         self.skiprows = skiprows
+        self.k = k
     def main(self):
 
         agent = DQN(self_print=False)
@@ -51,7 +54,7 @@ class Trade():
         ClassifierDa = (state.tolist() + insert.tolist())
         ClassifierDa = np.array([ClassifierDa])
 
-        ClassifierModel = load_model('./Keras_Model/my_model.h5')
+        ClassifierModel = load_model('./Keras_Model/my_model_classifier%d.h5'%self.k)
 
         Pre = ClassifierModel.predict_classes(ClassifierDa, verbose=0)
 
@@ -63,7 +66,7 @@ class Trade():
         if self.Trade_Sign_Pre == 0:
             self.Trade_Sign = 0
 
-        if Pre < 1:
+        if Pre < self.k-1:
             action = self.ValueAccount
 
         if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
@@ -191,7 +194,7 @@ if __name__ == '__main__':
 
     names['QTY%s' % action_last] = QTY
 
-    Trade = Trade(action_last=action_last, Price_Begun=Price_Begun,skiprows=skiprows)
+    Trade = Trade(action_last=action_last, Price_Begun=Price_Begun)
 
     from apscheduler.schedulers.blocking import BlockingScheduler
     sched = BlockingScheduler()
