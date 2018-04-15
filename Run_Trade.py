@@ -10,26 +10,27 @@ Get_Data = Get_Data()
 Coin = Get_Data.Coin
 Trade_api = Trade_Api()
 names = locals()
+skiprows = 200
 
 class Trade():
 
-    def __init__(self, Price_Begun, action_last=len(Coin)):
+    def __init__(self,Price_Begun,skiprows = 0, action_last=len(Coin)):
 
         self.ValueAccount = action_last
         self.Price_Begun = Price_Begun
         self.Trade_Sign = 1
         self.Trade_Sign_Pre = 1
         self.ProfitLoss = 1
-
+        self.skiprows = skiprows
     def main(self):
 
         agent = DQN(self_print=False)
 
         Get_Data.GetData_Now()
         scaler = preprocessing.StandardScaler()
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows:,:]
         Data = scaler.fit_transform(Data)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows:,:]
 
         number = -1
         state = Data[number,:]
@@ -190,7 +191,7 @@ if __name__ == '__main__':
 
     names['QTY%s' % action_last] = QTY
 
-    Trade = Trade(action_last=action_last, Price_Begun=Price_Begun)
+    Trade = Trade(action_last=action_last, Price_Begun=Price_Begun,skiprows=skiprows)
 
     from apscheduler.schedulers.blocking import BlockingScheduler
     sched = BlockingScheduler()

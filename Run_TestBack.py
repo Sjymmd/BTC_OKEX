@@ -11,7 +11,12 @@ warnings.filterwarnings("ignore")
 
 Get_Data = Get_Data()
 Coin = Get_Data.Coin
+
+Read_Trade_Log = False
 Classifier = False
+skiprows =1
+lenth = 200
+
 Trade_Path = './Log/Trade_Log.txt'
 
 if Classifier:
@@ -27,22 +32,25 @@ else:
 
 class TestBack():
 
-    def __init__(self, Price_Begun, action_last=len(Coin)):
+    def __init__(self,skiprows = 0,lenth = 200, Price_Begun=Get_Data._USDT_CNY,action_last=len(Coin) ) :
 
         self.ValueAccount = action_last
         self.Price_Begun = Price_Begun
         self.Classifier=  Classifier
         self.Path = Path
         self.limit =limit
+        self.skiprows = skiprows
+        self.lenth = lenth
         self.GetData_DQN()
+
 
     def GetData_DQN(self):
 
         scaler = preprocessing.StandardScaler()
-
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+        # print(self.skiprows)
+        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows-self.lenth:-self.skiprows,:]
         Data = scaler.fit_transform(Data)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows-self.lenth:-self.skiprows,:]
 
         DQN_Data = pd.DataFrame()
         agent = DQN()
@@ -184,7 +192,7 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     now = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    try:
+    if Read_Trade_Log :
 
         f = open(Trade_Path, 'r+')
         ValueAccount_Txt = f.readlines()
@@ -199,13 +207,13 @@ if __name__ == '__main__':
         QTY = float(Total_Asset / float(str(ValueAccount_Txt[-1]).split(' ')[-1])) * 0.998
         print('Successfully loaded:Trade_Log')
 
-    except:
+    else:
 
         ValueAccount = 'CNY'
-        from Class_Trade import Trade_api
-        Trade_api = Trade_api()
-        Total_Asset = Trade_api.GetAsset()
-        QTY = float(Total_Asset / Get_Data._USDT_CNY)
+        from Class_Trade import Trade_Api
+        Trade_api = Trade_Api()
+        Initial_Asset = Trade_api.GetAsset()
+        QTY = float(Initial_Asset / Get_Data._USDT_CNY)
         Price_Begun = Get_Data._USDT_CNY
         print("Initial Model")
 
@@ -220,7 +228,7 @@ if __name__ == '__main__':
 
     names['QTY%s' % action_last] = QTY
 
-    TestBack = TestBack( action_last=action_last, Price_Begun=Price_Begun)
+    TestBack = TestBack(lenth = lenth,skiprows=skiprows, action_last=action_last,Price_Begun=Price_Begun)
     TestBack.Run_Testback()
 
 
