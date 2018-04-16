@@ -15,7 +15,7 @@ Coin = Get_Data.Coin
 Read_Trade_Log = False
 
 skiprows =1
-lenth = 240
+lenth = 2000
 
 Max_Interval = 240
 k =2
@@ -108,25 +108,25 @@ class TestBack():
             if Trade_Sign_Pre == 0 :
                 Trade_Sign =0
 
-            if Pre < self.k-1 :
+            if Pre < self.k - 1 :
                 Action = self.ValueAccount
 
             if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
-                Action = len(Coin)
-                Price = self.PriceArray[number,-1]
-                print('Profit Get!')
-                if Trade_Sign ==0:
-                    Trade_Sign =1
-                    Trade_Sign_Pre = 1
-
+                # Action = len(Coin)
+                # Price = self.PriceArray[number,-1]
+                # print('Profit Get!')
+                # if Trade_Sign ==0:
+                #     Trade_Sign =1
+                #     Trade_Sign_Pre = 1
+                pass
 
             if (SellPrice - self.Price_Begun) / self.Price_Begun < -0.1:
-                Action = len(Coin)
-                Price = self.PriceArray[number,Action]
-                print('Profit Loss!')
-                Trade_Sign_Pre = 0
-                ProfitLoss = 0
-
+                # Action = len(Coin)
+                # Price = self.PriceArray[number,Action]
+                # print('Profit Loss!')
+                # Trade_Sign_Pre = 0
+                # ProfitLoss = 0
+                pass
 
             if Action != self.ValueAccount:
 

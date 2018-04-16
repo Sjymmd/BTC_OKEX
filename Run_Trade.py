@@ -70,19 +70,21 @@ class Trade():
             action = self.ValueAccount
 
         if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
-            action = len(Coin)
-            Price = PriceArray[number, -1]
-            print('Profit Get!')
-            if self.Trade_Sign == 0:
-                self.Trade_Sign = 1
-                self.Trade_Sign_Pre = 1
+            # action = len(Coin)
+            # Price = PriceArray[number, -1]
+            # print('Profit Get!')
+            # if self.Trade_Sign == 0:
+            #     self.Trade_Sign = 1
+            #     self.Trade_Sign_Pre = 1
+            pass
 
         if (SellPrice - self.Price_Begun) / self.Price_Begun < -0.1:
-            action = len(Coin)
-            Price = PriceArray[number, action]
-            print('Profit Loss!')
-            self.Trade_Sign_Pre = 0
-            self.ProfitLoss = 0
+            # action = len(Coin)
+            # Price = PriceArray[number, action]
+            # print('Profit Loss!')
+            # self.Trade_Sign_Pre = 0
+            # self.ProfitLoss = 0
+            pass
 
         if action != self.ValueAccount:
 
