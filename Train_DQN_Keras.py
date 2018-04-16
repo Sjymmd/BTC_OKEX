@@ -159,9 +159,9 @@ if __name__ == "__main__":
             state = next_state
             Train_Reward += reward
             if done:
+                agent.update_target_model()
                 break
         if e % 1000 == 0:
-            agent.update_target_model()
             print("episode: {}/{}, score:{},e: {:.2}"
                   .format(e, EPISODES, Train_Reward,agent.epsilon))
         if len(agent.memory) > batch_size:
