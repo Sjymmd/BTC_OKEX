@@ -163,4 +163,7 @@ if __name__ == '__main__':
         import gc
         gc.collect()
 
-        Classifier.k+=1
+        if Classifier.k < 4:
+            Classifier.k+= 1
+        else:
+            Classifier.k = 2
