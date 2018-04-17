@@ -61,16 +61,16 @@ class Classifier():
                 Target = Inc if Price_Begun < SellPrice else 0
                 Price_Begun = Price
 
-                insert = np.array([Reward, Q_Value,Action_last,D_price])
+                insert = np.array([Reward, Q_Value,D_price])
                 insert = scaler.fit_transform(insert.reshape((-1, 1))).reshape(insert.shape[0], )
+
+                ClassifierDa = (state.tolist() + insert.tolist() + [Action_last]+[Target])
+                ClassifierDa = np.array([ClassifierDa])
 
                 D_price = d_price
                 Reward = action_reward
                 Q_Value = agent.Q_Value
                 Action_last = action
-
-                ClassifierDa = (state.tolist() + insert.tolist()+[Target])
-                ClassifierDa = np.array([ClassifierDa])
 
                 if number == 2:
                     DQN_Data = ClassifierDa
