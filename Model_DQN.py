@@ -41,14 +41,12 @@ class TWStock():
             gamma = gamma ** 2
         # action_reward = (NowData*gamma + f_reward)*count
         action_reward  = float(f_reward)
-        stock_done = False
         self.stock_index += 1
         self.last_coin = action
         if self.stock_index >= len(self.stock_data) - 1:
             stock_done = True
         else:
             stock_done = False
-
         return self.stock_data[self.stock_index], action_reward, stock_done, 0
 
 def conv2d(x, W, s):

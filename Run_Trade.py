@@ -49,9 +49,9 @@ class Trade():
         action_reward = float(f_reward)
         d_price = max(Price_Now) - Price_Now[number]
 
-        insert = np.array([action_reward, agent.Q_Value, action, d_price])
+        insert = np.array([action_reward, agent.Q_Value, d_price])
         insert = scaler.fit_transform(insert.reshape((-1, 1))).reshape(insert.shape[0], )
-        ClassifierDa = (state.tolist() + insert.tolist())
+        ClassifierDa = (state.tolist() + insert.tolist()+[action])
         ClassifierDa = np.array([ClassifierDa])
 
         ClassifierModel = load_model('./Keras_Model/my_model_classifier%d.h5'%self.k)
@@ -66,8 +66,8 @@ class Trade():
         if self.Trade_Sign_Pre == 0:
             self.Trade_Sign = 0
 
-        if Pre < self.k-1:
-            action = self.ValueAccount
+        # if Pre < self.k-1:
+        #     action = self.ValueAccount
 
         if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
             # action = len(Coin)
