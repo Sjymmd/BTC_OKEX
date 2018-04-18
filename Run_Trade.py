@@ -63,8 +63,8 @@ class Trade():
         # Price = PriceArray[number, action]
         # SellPrice = PriceArray[number, self.ValueAccount]
 
-        Price = float(okcoinSpot.ticker(Coin[action])['ticker']['buy']) if action != len(Coin) else Get_Data._USDT_CNY
-        SellPrice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['sell']) if self.ValueAccount != len(Coin) else Get_Data._USDT_CNY
+        Price = float(okcoinSpot.ticker(Coin[action])['ticker']['buy'])*Get_Data._USDT_CNY if action != len(Coin) else Get_Data._USDT_CNY
+        SellPrice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['sell'])*Get_Data._USDT_CNY if self.ValueAccount != len(Coin) else Get_Data._USDT_CNY
 
         if self.Trade_Sign_Pre == 0:
             self.Trade_Sign = 0
