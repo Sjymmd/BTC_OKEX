@@ -106,7 +106,7 @@ class Trade():
                     now = datetime.datetime.now()
                     now = now.strftime('%Y-%m-%d %H:%M:%S')
 
-                    print('Time', number, 'Sell %s' % SELL_COIN, 'Buy %s' % BUY_COIN, 'Price', Price)
+                    print('Time', now, 'Sell %s' % SELL_COIN, 'Buy %s' % BUY_COIN, 'Price', Price)
                     print('Sell %s' % SELL_COIN, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
 
                     names['QTY%s' % action] = (Cny / Price) * 0.998
@@ -186,10 +186,9 @@ if __name__ == '__main__':
         print("Initial Model")
 
     try:
-        action_last = Coin.tolist().index(ValueAccount)
+        action_last = Coin.index(ValueAccount)
     except:
         action_last = len(Coin)
-
     names = locals()
     for x in range(len(Coin)+1):
         names['QTY%s' % x] = 0
