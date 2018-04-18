@@ -140,13 +140,18 @@ class Trade():
             self.Price_Begun = Price
             self.ValueAccount = action
 
-        CoinPrice = 0
-        for y in range(len(Coin)+1):
-            CoinPrice += PriceArray[number,y] * names['QTY%s' % y]
-            if names['QTY%s' % y] > 0:
-                CoinName = Coin[y] if y !=len(Coin) else 'CNY'
-                print('%s QTY' % CoinName, names['QTY%s' % y], ' Last_Price %s' % PriceArray[number,y])
-                break
+        # CoinPrice = 0
+        # for y in range(len(Coin)):
+        #     CoinPrice += PriceArray[number,y] * names['QTY%s' % y]
+        #     if names['QTY%s' % y] > 0:
+        #         CoinName = Coin[y] if y !=len(Coin) else 'CNY'
+        #         print('%s QTY' % CoinName, names['QTY%s' % y], ' Last_Price %s' % PriceArray[number,y])
+        #         break
+
+        CoinName = Coin[self.ValueAccount] if self.ValueAccount != len(Coin) else 'CNY'
+        LastPrice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['last'])*Get_Data._USDT_CNY if self.ValueAccount != len(Coin) else Get_Data._USDT_CNY
+        print('%s QTY' % CoinName, names['QTY%s' % self.ValueAccount], ' Last_Price %s' % LastPrice)
+        CoinPrice = LastPrice*names['QTY%s' % self.ValueAccount]
         profit = CoinPrice - Initial_Asset
 
         now = datetime.datetime.now()
