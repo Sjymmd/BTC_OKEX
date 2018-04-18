@@ -111,28 +111,28 @@ class Trade():
 
                     names['QTY%s' % action] = (Cny / Price) * 0.998
 
-                    Trade_api.Get_Coin()
-                    Trade_api.Sell_Coin()
-
-                    while True:
-                        if Trade_api.Check_FreezedCoin():
-                            time.sleep(5)
-                        else:
-                            print('Sell Complete')
-                            break
-
-                    print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
-
-                    Trade_api.Get_Coin()
-                    Trade_api.Buy_Coin(BUY_COIN)
-
-                    f = open(Trade_Path, 'r+')
-                    f.read()
-                    f.write('\n%s' % now)
-                    f.write('\nSell %s , Price %s, Current_Profit %s' % (
-                        SELL_COIN, SellPrice, Cny - Initial_Asset))
-                    f.write('\nBuy %s , Price %s' % (BUY_COIN, Price))
-                    f.close()
+                    # Trade_api.Get_Coin()
+                    # Trade_api.Sell_Coin()
+                    #
+                    # while True:
+                    #     if Trade_api.Check_FreezedCoin():
+                    #         time.sleep(5)
+                    #     else:
+                    #         print('Sell Complete')
+                    #         break
+                    #
+                    # print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
+                    #
+                    # Trade_api.Get_Coin()
+                    # Trade_api.Buy_Coin(BUY_COIN)
+                    #
+                    # f = open(Trade_Path, 'r+')
+                    # f.read()
+                    # f.write('\n%s' % now)
+                    # f.write('\nSell %s , Price %s, Current_Profit %s' % (
+                    #     SELL_COIN, SellPrice, Cny - Initial_Asset))
+                    # f.write('\nBuy %s , Price %s' % (BUY_COIN, Price))
+                    # f.close()
 
             self.Price_Begun = Price
             self.ValueAccount = action
