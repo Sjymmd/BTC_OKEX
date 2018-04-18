@@ -60,8 +60,11 @@ class Trade():
 
         tf.reset_default_graph()
 
-        Price = PriceArray[number, action]
-        SellPrice = PriceArray[number, self.ValueAccount]
+        # Price = PriceArray[number, action]
+        # SellPrice = PriceArray[number, self.ValueAccount]
+
+        Price = okcoinSpot.ticker(Coin[action]['ticker']['buy']) if action != len(Coin) else Get_Data._USDT_CNY
+        SellPrice = okcoinSpot.ticker(Coin[self.ValueAccount]['ticker']['sell']) if self.ValueAccount != len(Coin) else Get_Data._USDT_CNY
 
         if self.Trade_Sign_Pre == 0:
             self.Trade_Sign = 0
