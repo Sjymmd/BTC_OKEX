@@ -15,7 +15,7 @@ Coin = Get_Data.Coin
 Read_Trade_Log = False
 
 skiprows =1
-lenth = 2000
+lenth = 2130
 
 Max_Interval = 240
 k =2
@@ -40,7 +40,7 @@ class TestBack():
         self.skiprows = skiprows
         self.lenth = lenth
         self.GetData_DQN()
-
+        # self.GetData_DDQN()
 
     def GetData_DQN(self):
 
@@ -68,9 +68,9 @@ class TestBack():
 
             d_price = max(Price_Now[number - Max_Interval  if (number-Max_Interval)>=0 else 0:number + 1]) - Price_Now[number]
 
-            insert = np.array([action_reward, agent.Q_Value,action,d_price])
+            insert = np.array([action_reward, agent.Q_Value,d_price])
             insert = scaler.fit_transform(insert.reshape((-1, 1))).reshape(insert.shape[0], )
-            ClassifierDa = (state.tolist() + insert.tolist())
+            ClassifierDa = (state.tolist() + insert.tolist()+[action])
             ClassifierDa = np.array([ClassifierDa])
 
             if number == 2:
@@ -81,6 +81,55 @@ class TestBack():
             self.DQN_Data = DQN_Data
             self.PriceArray = PriceArray[2:,:]
 
+    def GetData_DDQN(self):
+
+        from Train_DQN_Keras import DQNAgent
+
+        scaler = preprocessing.StandardScaler()
+        # print(self.skiprows)
+        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[
+               -self.skiprows - self.lenth:-self.skiprows, :]
+        Data = scaler.fit_transform(Data)
+        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[
+                     -self.skiprows - self.lenth:-self.skiprows, :]
+
+        state_size = int(len(np.loadtxt("./Log/Coin_Select.txt", dtype=np.str)) * 9)
+        action_size = int(state_size / 9 + 1)
+        DQN_Data = pd.DataFrame()
+
+        agent = DQNAgent(state_size=state_size, action_size=action_size)
+        agent.load("./DQN_Model/Keras-ddqn.h5")
+        print('Loading Keras-ddqn Model Successfully')
+
+        for number in range(2,len(Data)):
+            state = Data[number, :].reshape(1,-1)
+            action = agent.action(state)
+            state = Data[number, :].reshape(-1,)
+            Price_Now = PriceArray[:, action]
+            gamma = 0.95
+            fex = 1 / (0.998 * 0.998) - 1
+            f_reward = 0
+            for x in range(0, 2):
+                f_reward += gamma * (
+                            ((Price_Now[number - x] - Price_Now[number - x - 1]) / Price_Now[number - x]) - fex)
+                gamma = gamma ** 2
+            action_reward = float(f_reward)
+
+            d_price = max(Price_Now[number - Max_Interval if (number - Max_Interval) >= 0 else 0:number + 1]) - \
+                      Price_Now[number]
+
+            insert = np.array([action_reward, agent.Q_Value, d_price])
+            insert = scaler.fit_transform(insert.reshape((-1, 1))).reshape(insert.shape[0], )
+            ClassifierDa = (state.tolist() + insert.tolist()+ [action])
+            ClassifierDa = np.array([ClassifierDa])
+
+            if number == 2:
+                DQN_Data = ClassifierDa
+            else:
+                DQN_Data = np.row_stack((DQN_Data, ClassifierDa))
+
+        self.DQN_Data = DQN_Data
+        self.PriceArray = PriceArray[2:, :]
 
     def Run_Testback(self):
 
@@ -95,21 +144,21 @@ class TestBack():
         Trade_Sign_Pre = 1
         ProfitLoss = 1
 
-        for number in range(len(DQN_Data)):
+        for number in range(2,len(DQN_Data)):
 
             Classifier_Data = DQN_Data[number,:].reshape(1,DQN_Data[number,:].shape[0])
             Pre = ClassifierModel.predict_classes(Classifier_Data,verbose=0)
 
-            Action = int(DQN_Data[number,-2])
+            Action = int(DQN_Data[number,-1])
 
             Price = self.PriceArray[number,Action]
-            SellPrice = self.PriceArray[number,self.ValueAccount]
+            SellPrice = self.PriceArray[number, self.ValueAccount]
 
             if Trade_Sign_Pre == 0 :
                 Trade_Sign =0
 
-            if Pre < self.k - 1 :
-                Action = self.ValueAccount
+            # if Pre < self.k - 1 :
+            #     Action = self.ValueAccount
 
             if (SellPrice - self.Price_Begun) / self.Price_Begun > 0.1:
                 # Action = len(Coin)
@@ -153,7 +202,7 @@ class TestBack():
                         now = now.strftime('%Y-%m-%d %H:%M:%S')
                         f = open(Trade_Path_Testback, 'r+')
                         f.read()
-                        f.write('\n%s' % now)
+                        f.write('\nTime %s' % number)
                         f.write('\nSell %s , Price %s, Current_Profit %s' % (
                             SELL_COIN, SellPrice, Cny - Initial_Asset))
                         f.write('\nBuy %s , Price %s' % (BUY_COIN, Price))
