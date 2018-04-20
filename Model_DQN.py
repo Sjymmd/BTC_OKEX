@@ -74,6 +74,8 @@ class DQN():
     # DQN Agent
     def __init__(self,self_print = True):
         self.print = self_print
+        self.INITIAL_EPSILON = 0.9
+        self.FINAL_EPSILON = 0.01
         self.memory_size = 500
         self.dueling = True
         # init experience replay
@@ -229,8 +231,8 @@ class DQN():
             self.state_input: state_batch
         })
         # save network every 100 iteration
-        if self.time_step % 50 == 0:
-            self.saver.save(self.session, './DQN_Model/' + 'network' + '-dqn', global_step=self.time_step)
+        # if self.time_step % 100 == 0:
+        #     self.saver.save(self.session, './DQN_Model/' + 'network' + '-dqn', global_step=self.time_step)
 
     def egreedy_action(self, state):
         Q_value = self.q_eval.eval(feed_dict={
@@ -238,12 +240,14 @@ class DQN():
 
         self.Q_Value = np.amax(Q_value)
 
+        self.epsilon -= (self.INITIAL_EPSILON - self.FINAL_EPSILON) / 100000
+
         if random.random() <= self.epsilon:
             return random.randint(0, self.action_dim - 1)
         else:
             return np.argmax(Q_value)
 
-        self.epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / 100000
+
 
     def action(self, state):
         self.Q_Value = np.amax(self.q_eval.eval(feed_dict={
