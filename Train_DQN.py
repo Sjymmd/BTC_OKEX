@@ -5,10 +5,19 @@ import warnings
 warnings.filterwarnings("ignore")
 
 Coin = np.loadtxt("./Log/Coin_Select.txt",dtype=np.str)
-EPISODE = 10000
+EPISODE = 10000*100
 TEST = 1
 
 def Main():
+
+    Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+    Data = scaler.fit_transform(Data)
+    PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+
+    lenth = int(Data.shape[0] * 5 / 6)
+    STEP = lenth - 1
+    my_train = Data[:lenth]
+    my_test = Data[lenth:]
 
     env = TWStock(my_train)
     agent = DQN()
@@ -62,7 +71,8 @@ def Main():
         Total_rate += rate
 
         # Test every 100 episodes
-        if episode % 10 == 0:
+        if episode % 100 == 0:
+
             out = "test\n"
             env1 = TWStock(my_test)
             total_reward = 0
@@ -96,10 +106,18 @@ def Main():
         # tf.summary.merge_all()
         # tf.summary.FileWriter('./Log')
 
-    print('Train_Rewards', ave_train_rewards, 'Training Rate:', ave_rate, 'Loss', ave_loss)
-    print('episode: ', episode, 'Evaluation Average Reward:', ave_reward)
+            Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+            Data = scaler.fit_transform(Data)
+            PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+            lenth = int(Data.shape[0] * 5 / 6)
+            STEP = lenth - 1
+            my_train = Data[:lenth]
+            my_test = Data[lenth:]
+            env.stock_data = my_train
+            agent.saver.save(agent.session, './DQN_Model/' + 'network' + '-dqn', global_step=agent.time_step)
 
-
+        if episode %1000 ==0 and episode!= 0:
+            agent.INITIAL_EPSILON = 0.5
 
 if __name__ == '__main__':
 
@@ -107,14 +125,7 @@ if __name__ == '__main__':
     while True:
 
         scaler = preprocessing.StandardScaler()
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
-        Data = scaler.fit_transform(Data)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
 
-        lenth = int(Data.shape[0] * 5 / 6)
-        STEP = lenth - 1
-        my_train = Data[:lenth]
-        my_test = Data[lenth:]
         import time
         StartTime = time.time()
         tf.reset_default_graph()
