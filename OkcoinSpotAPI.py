@@ -35,7 +35,14 @@ def httpGet(url, resource, params=''):
         import requests
         proxies = {'https': 'socks5://127.0.0.1:1080'}
         url_in = 'https://'+url + resource + '?' + params
-        response = requests.get(url = url_in,timeout =10, proxies=proxies,verify=False)
+        while True:
+            try:
+                response = requests.get(url = url_in,timeout =10, proxies=proxies,verify=False)
+                break
+            except:
+                print('SSL_REQUEST_ERROR')
+                time.sleep(5)
+                continue
         data = response.content.decode('utf8')
 
     return json.loads(data)
@@ -59,7 +66,17 @@ def httpPost(url, resource, params):
     except:
 
         import requests
-        response = requests.post('https://' + url + resource, data=temp_params, headers=headers,timeout = 10)
+        proxies = {'https': 'socks5://127.0.0.1:1080'}
+        while True:
+            try:
+                response = requests.post('https://' + url + resource, data=temp_params, headers=headers,timeout = 10,proxies=proxies,
+                            verify=False)
+                break
+            except:
+                print('SSL_POST_ERROR')
+                time.sleep(5)
+                continue
+
         data = response.content.decode('utf8')
         params.clear()
     return data

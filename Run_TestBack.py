@@ -15,7 +15,7 @@ Coin = Get_Data.Coin
 Read_Trade_Log = False
 
 skiprows =1
-lenth = 2130
+lenth = -1
 
 Max_Interval = 240
 k =2

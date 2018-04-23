@@ -27,6 +27,14 @@ class Trade():
         self.k = k
     def main(self):
 
+
+        FreezeCoin = Trade_api.Check_FreezedCoin()
+        if FreezeCoin:
+            order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders'][0]['order_id']
+            okcoinSpot.cancelOrder(FreezeCoin, order_id)
+            Trade_api.Sell_Coin()
+            self.ValueAccount = len(Coin)
+
         agent = DQN(self_print=False)
 
         Get_Data.GetData_Now()
@@ -62,9 +70,10 @@ class Trade():
 
         # Price = PriceArray[number, action]
         # SellPrice = PriceArray[number, self.ValueAccount]
-
-        Price = float(okcoinSpot.ticker(Coin[action])['ticker']['buy'])*Get_Data._USDT_CNY if action != len(Coin) else Get_Data._USDT_CNY
-        SellPrice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['sell'])*Get_Data._USDT_CNY if self.ValueAccount != len(Coin) else Get_Data._USDT_CNY
+        buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy'])if action != len(Coin) else 1
+        Price = buyprice*Get_Data._USDT_CNY
+        sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['sell'])if self.ValueAccount != len(Coin) else 1
+        SellPrice = sellprice*Get_Data._USDT_CNY
 
         if self.Trade_Sign_Pre == 0:
             self.Trade_Sign = 0
@@ -114,28 +123,28 @@ class Trade():
 
                     names['QTY%s' % action] = (Cny / Price) * 0.998
 
-                    # Trade_api.Get_Coin()
-                    # Trade_api.Sell_Coin()
-                    #
-                    # while True:
-                    #     if Trade_api.Check_FreezedCoin():
-                    #         time.sleep(5)
-                    #     else:
-                    #         print('Sell Complete')
-                    #         break
-                    #
-                    # print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
-                    #
-                    # Trade_api.Get_Coin()
-                    # Trade_api.Buy_Coin(BUY_COIN)
-                    #
-                    # f = open(Trade_Path, 'r+')
-                    # f.read()
-                    # f.write('\n%s' % now)
-                    # f.write('\nSell %s , Price %s, Current_Profit %s' % (
-                    #     SELL_COIN, SellPrice, Cny - Initial_Asset))
-                    # f.write('\nBuy %s , Price %s' % (BUY_COIN, Price))
-                    # f.close()
+                    Trade_api.Get_Coin()
+                    Trade_api.Sell(SELL_COIN,sellprice)
+
+                    while True:
+                        if Trade_api.Check_FreezedCoin():
+                            time.sleep(5)
+                        else:
+                            print('Sell Complete')
+                            break
+
+                    print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
+
+                    Trade_api.Get_Coin()
+                    Trade_api.Buy(BUY_COIN,buyprice)
+
+                    f = open(Trade_Path, 'r+')
+                    f.read()
+                    f.write('\n%s' % now)
+                    f.write('\nSell %s , Price %s, Current_Profit %s' % (
+                        SELL_COIN, SellPrice, Cny - Initial_Asset))
+                    f.write('\nBuy %s , Price %s' % (BUY_COIN, Price))
+                    f.close()
 
             self.Price_Begun = Price
             self.ValueAccount = action
