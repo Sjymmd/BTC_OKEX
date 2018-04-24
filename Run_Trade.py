@@ -29,11 +29,38 @@ class Trade():
 
         true = ''
         false = ''
+
+        now = datetime.datetime.now()
+        now = now.strftime('%Y-%m-%d %H:%M:%S')
         CoinName = Coin[self.ValueAccount] if self.ValueAccount != len(Coin) else 'CNY'
+
         if Trade_api.Check_FreezedCoin():
+
             order_id = eval(okcoinSpot.orderinfo(CoinName, -1))['orders'][0]['order_id']
             okcoinSpot.cancelOrder(CoinName, order_id)
+            sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
+                                  'sell']) if self.ValueAccount != len(Coin) else 1
+
+            SellPrice = sellprice * Get_Data._USDT_CNY
+            Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
+
             Trade_api.Sell_Coin()
+
+            while True:
+                if Trade_api.Check_FreezedCoin():
+                    time.sleep(5)
+                else:
+                    print('Initial_Sell_Compete')
+                    break
+
+            f = open(Trade_Path, 'r+')
+            f.read()
+            f.write('\n%s' % now)
+            f.write('\nSell %s , Price %s, Current_Profit %s' % (
+                CoinName, SellPrice, Cny - Initial_Asset))
+            f.write('\nBuy %s , Price %s' % ('CNY',Get_Data._USDT_CNY ))
+            f.close()
+            
             self.ValueAccount = len(Coin)
 
         agent = DQN(self_print=False)
@@ -200,7 +227,7 @@ if __name__ == '__main__':
         Price_Begun = float(str(ValueAccount_Txt[-1]).split(' ')[-1])
         Total_Asset = Initial_Asset + Current_Profit
         ValueAccount = str(ValueAccount_Txt[-1]).split(' ')[1]
-        QTY = float(Total_Asset / float(str(ValueAccount_Txt[-1]).split(' ')[-1])) * 0.998
+        QTY = float(Total_Asset / float(str(ValueAccount_Txt[-1]).split(' ')[-1]))
         print('Successfully loaded:Trade_Log')
 
     except:
