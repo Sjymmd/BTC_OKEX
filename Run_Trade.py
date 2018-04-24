@@ -28,7 +28,7 @@ class Trade():
     def main(self):
 
 
-        FreezeCoin = Trade_api.Check_FreezedCoin()
+        FreezeCoin = Trade_api.Check_FreezedCoin()[0]
         if FreezeCoin:
             order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders'][0]['order_id']
             okcoinSpot.cancelOrder(FreezeCoin, order_id)
@@ -127,12 +127,21 @@ class Trade():
                     Trade_api.Sell(SELL_COIN,sellprice)
 
                     while True:
-                        if Trade_api.Check_FreezedCoin():
+                        FreezeCoin = Trade_api.Check_FreezedCoin()[0]
+                        if FreezeCoin:
                             time.sleep(5)
+                            order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders'][0]['order_id']
+                            okcoinSpot.cancelOrder(FreezeCoin, order_id)
+                            sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
+                                                  'sell']) if self.ValueAccount != len(Coin) else 1
+                            Trade_api.Sell(SELL_COIN, sellprice)
+
                         else:
                             print('Sell Complete')
                             break
-
+                    SellPrice = sellprice * Get_Data._USDT_CNY
+                    buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy']) if action != len(Coin) else 1
+                    Price = buyprice * Get_Data._USDT_CNY
                     print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
 
                     Trade_api.Get_Coin()

@@ -63,7 +63,7 @@ class Trade_Api(object):
         if self.Coin :
             for x in range(len(self.Coin)):
                 if self.Coin[x] =='usdt_usdt':
-                    print(okcoinSpot.trade(CoinName, 'buy',Price,self.Amount[x]/Price))
+                    okcoinSpot.trade(CoinName, 'buy',Price,self.Amount[x]/Price)
 
     def Sell(self,CoinName,Price):
         if self.Coin :
@@ -92,16 +92,17 @@ class Trade_Api(object):
 
 
 if __name__ == '__main__':
-    print(okcoinSpot.trades('snt_usdt'))
+    # print(okcoinSpot.trades('snt_usdt'))
     Trade_Api = Trade_Api()
-
-    while True:
-        if Trade_Api.Check_FreezedCoin():
-            pass
-        else:
-            print('Sell Complete')
-            break
-    Trade_Api = Trade_Api()
-    print(Trade_Api.GetAsset())
+    #
+    # while True:
+    #     if Trade_Api.Check_FreezedCoin():
+    #         pass
+    #     else:
+    #         print('Sell Complete')
+    #         break
+    # Trade_Api = Trade_Api()
+    # print(Trade_Api.GetAsset())
+    print(Trade_Api.Check_FreezedCoin()[0])
 
 
