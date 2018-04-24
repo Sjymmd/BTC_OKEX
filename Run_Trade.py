@@ -27,10 +27,11 @@ class Trade():
         self.k = k
     def main(self):
 
-
+        true = ''
+        false = ''
         FreezeCoin = Trade_api.Check_FreezedCoin()[0]
         if FreezeCoin:
-            order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders'][0]['order_id']
+            order_id = eval(okcoinSpot.orderinfo(self.ValueAccount, -1))['orders'][0]['order_id']
             okcoinSpot.cancelOrder(FreezeCoin, order_id)
             Trade_api.Sell_Coin()
             self.ValueAccount = len(Coin)
