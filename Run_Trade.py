@@ -30,8 +30,7 @@ class Trade():
         true = ''
         false = ''
         CoinName = Coin[self.ValueAccount] if self.ValueAccount != len(Coin) else 'CNY'
-        FreezeCoin = Trade_api.Check_FreezedCoin()[0]
-        if FreezeCoin:
+        if Trade_api.Check_FreezedCoin():
             order_id = eval(okcoinSpot.orderinfo(CoinName, -1))['orders'][0]['order_id']
             okcoinSpot.cancelOrder(CoinName, order_id)
             Trade_api.Sell_Coin()
@@ -129,8 +128,9 @@ class Trade():
                     Trade_api.Sell(SELL_COIN,sellprice)
 
                     while True:
-                        FreezeCoin = Trade_api.Check_FreezedCoin()[0]
-                        if FreezeCoin:
+
+                        if Trade_api.Check_FreezedCoin():
+                            FreezeCoin = Trade_api.Check_FreezedCoin()[0]
                             time.sleep(5)
                             order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders'][0]['order_id']
                             okcoinSpot.cancelOrder(FreezeCoin, order_id)
