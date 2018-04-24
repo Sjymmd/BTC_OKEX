@@ -40,7 +40,7 @@ class Trade_Api(object):
             if float(value) > 0:
                 key = str(key + '_usdt')
                 Coin.append((key))
-                print('%s Freezed:%s'%(key,value))
+                # print('%s Freezed:%s'%(key,value))
         return Coin
 
     def Sell_Coin(self):
@@ -93,7 +93,7 @@ class Trade_Api(object):
 
 if __name__ == '__main__':
     # print(okcoinSpot.trades('snt_usdt'))
-    Trade_Api = Trade_Api()
+    Trade_api = Trade_Api()
     #
     # while True:
     #     if Trade_Api.Check_FreezedCoin():
@@ -103,6 +103,15 @@ if __name__ == '__main__':
     #         break
     # Trade_Api = Trade_Api()
     # print(Trade_Api.GetAsset())
-    print(Trade_Api.Check_FreezedCoin()[0])
+    # FreezeCoin = Trade_api.Check_FreezedCoin()[0]
+    # print(FreezeCoin)
+    print(eval(okcoinSpot.orderinfo('cmt_usdt', -1)))
+
+    # if FreezeCoin:
+    #     order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders'][0]['order_id']
+    #     okcoinSpot.cancelOrder(FreezeCoin, order_id)
+    #     Trade_api.Sell_Coin()
+    #     self.ValueAccount = len(Coin)
+    # print(Trade_Api.Check_FreezedCoin()[0])
 
 

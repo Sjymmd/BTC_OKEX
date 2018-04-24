@@ -43,6 +43,7 @@ class Trade():
 
             SellPrice = sellprice * Get_Data._USDT_CNY
             Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
+            names['QTY%s' % self.ValueAccount] = 0
 
             Trade_api.Sell_Coin()
 
@@ -60,8 +61,9 @@ class Trade():
                 CoinName, SellPrice, Cny - Initial_Asset))
             f.write('\nBuy %s , Price %s' % ('CNY',Get_Data._USDT_CNY ))
             f.close()
-            
+
             self.ValueAccount = len(Coin)
+            names['QTY%s' % self.ValueAccount] = Cny / Get_Data._USDT_CNY
 
         agent = DQN(self_print=False)
 
@@ -175,6 +177,21 @@ class Trade():
 
                     Trade_api.Get_Coin()
                     Trade_api.Buy(BUY_COIN,buyprice)
+
+                    while True:
+
+                        if Trade_api.Check_FreezedCoin():
+                            time.sleep(10)
+                            order_id = eval(okcoinSpot.orderinfo(BUY_COIN, -1))['orders'][0]['order_id']
+                            okcoinSpot.cancelOrder(BUY_COIN, order_id)
+                            buyprice = float(okcoinSpot.ticker(BUY_COIN)['ticker']['buy']) if action != len(
+                                Coin) else 1
+                            Price = buyprice * Get_Data._USDT_CNY
+                            Trade_api.Buy(BUY_COIN, buyprice)
+
+                        else:
+                            print('Buy Complete')
+                            break
 
                     f = open(Trade_Path, 'r+')
                     f.read()
