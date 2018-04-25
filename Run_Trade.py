@@ -40,29 +40,29 @@ class Trade():
                 order_id = order_id[0]['order_id']
                 okcoinSpot.cancelOrder(CoinName, order_id)
                 sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
-                                  'sell']) if self.ValueAccount != len(Coin) else 1
+                                  'buy']) if self.ValueAccount != len(Coin) else 1
                 Trade_api.Sell_Coin()
                 SellPrice = sellprice * Get_Data._USDT_CNY
                 Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
                 names['QTY%s' % self.ValueAccount] = 0
 
-            while True:
-                if Trade_api.Check_FreezedCoin():
-                    time.sleep(5)
-                else:
-                    print('Initial_Sell_Compete')
-                    break
+                while True:
+                    if Trade_api.Check_FreezedCoin():
+                        time.sleep(10)
+                    else:
+                        print('Initial_Sell_Compete')
+                        break
 
-            f = open(Trade_Path, 'r+')
-            f.read()
-            f.write('\n%s' % now)
-            f.write('\nSell %s , Price %s, Current_Profit %s' % (
-                CoinName, SellPrice, Cny - Initial_Asset))
-            f.write('\nBuy %s , Price %s' % ('CNY',Get_Data._USDT_CNY ))
-            f.close()
+                f = open(Trade_Path, 'r+')
+                f.read()
+                f.write('\n%s' % now)
+                f.write('\nSell %s , Price %s, Current_Profit %s' % (
+                    CoinName, SellPrice, Cny - Initial_Asset))
+                f.write('\nBuy %s , Price %s' % ('CNY',Get_Data._USDT_CNY ))
+                f.close()
 
-            self.ValueAccount = len(Coin)
-            names['QTY%s' % self.ValueAccount] = Cny / Get_Data._USDT_CNY
+                self.ValueAccount = len(Coin)
+                names['QTY%s' % self.ValueAccount] = Cny / Get_Data._USDT_CNY
 
         agent = DQN(self_print=False)
 
@@ -99,9 +99,9 @@ class Trade():
 
         # Price = PriceArray[number, action]
         # SellPrice = PriceArray[number, self.ValueAccount]
-        buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy'])if action != len(Coin) else 1
+        buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['sell'])if action != len(Coin) else 1
         Price = buyprice*Get_Data._USDT_CNY
-        sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['sell'])if self.ValueAccount != len(Coin) else 1
+        sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['buy'])if self.ValueAccount != len(Coin) else 1
         SellPrice = sellprice*Get_Data._USDT_CNY
 
         if self.Trade_Sign_Pre == 0:
@@ -165,13 +165,13 @@ class Trade():
                                 order_id = order_id[0]['order_id']
                                 okcoinSpot.cancelOrder(FreezeCoin, order_id)
                                 sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
-                                                  'sell']) if self.ValueAccount != len(Coin) else 1
+                                                  'buy']) if self.ValueAccount != len(Coin) else 1
                                 Trade_api.Sell(SELL_COIN, sellprice)
                         else:
                             print('Sell Complete')
                             break
                     SellPrice = sellprice * Get_Data._USDT_CNY
-                    buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy']) if action != len(Coin) else 1
+                    buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['sell']) if action != len(Coin) else 1
                     Price = buyprice * Get_Data._USDT_CNY
                     print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
 
@@ -185,11 +185,10 @@ class Trade():
                             if order_id:
                                 order_id = order_id[0]['order_id']
                                 okcoinSpot.cancelOrder(BUY_COIN, order_id)
-                                buyprice = float(okcoinSpot.ticker(BUY_COIN)['ticker']['buy']) if action != len(
+                                buyprice = float(okcoinSpot.ticker(BUY_COIN)['ticker']['sell']) if action != len(
                                     Coin) else 1
                                 Price = buyprice * Get_Data._USDT_CNY
                                 Trade_api.Buy(BUY_COIN, buyprice)
-
                         else:
                             print('Buy Complete')
                             break
