@@ -157,7 +157,7 @@ class Trade():
 
                     while True:
 
-                        time.sleep(5)
+                        time.sleep(10)
                         if Trade_api.Check_FreezedCoin():
                             FreezeCoin = Trade_api.Check_FreezedCoin()[0]
                             order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders']
