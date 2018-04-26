@@ -171,27 +171,27 @@ class Trade():
                             print('Sell Complete')
                             break
                     SellPrice = sellprice * Get_Data._USDT_CNY
-                    buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['sell']) if action != len(Coin) else 1
+                    buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy']) if action != len(Coin) else 1
                     Price = buyprice * Get_Data._USDT_CNY
                     print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
 
                     Trade_api.Get_Coin()
                     Trade_api.Buy(BUY_COIN,buyprice)
 
-                    while True:
-                        time.sleep(10)
-                        if Trade_api.Check_FreezedCoin():
-                            order_id = eval(okcoinSpot.orderinfo(BUY_COIN, -1))['orders']
-                            if order_id:
-                                order_id = order_id[0]['order_id']
-                                okcoinSpot.cancelOrder(BUY_COIN, order_id)
-                                buyprice = float(okcoinSpot.ticker(BUY_COIN)['ticker']['sell']) if action != len(
-                                    Coin) else 1
-                                Price = buyprice * Get_Data._USDT_CNY
-                                Trade_api.Buy(BUY_COIN, buyprice)
-                        else:
-                            print('Buy Complete')
-                            break
+                    # while True:
+                    #     time.sleep(10)
+                    #     if Trade_api.Check_FreezedCoin():
+                    #         order_id = eval(okcoinSpot.orderinfo(BUY_COIN, -1))['orders']
+                    #         if order_id:
+                    #             order_id = order_id[0]['order_id']
+                    #             okcoinSpot.cancelOrder(BUY_COIN, order_id)
+                    #             buyprice = float(okcoinSpot.ticker(BUY_COIN)['ticker']['sell']) if action != len(
+                    #                 Coin) else 1
+                    #             Price = buyprice * Get_Data._USDT_CNY
+                    #             Trade_api.Buy(BUY_COIN, buyprice)
+                    #     else:
+                    #         print('Buy Complete')
+                    #         break
 
                     f = open(Trade_Path, 'r+')
                     f.read()
