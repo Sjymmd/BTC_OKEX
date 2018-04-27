@@ -188,7 +188,7 @@ class TestBack():
 
                     else:
 
-                        Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
+                        Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998*0.98
                         names['QTY%s' % self.ValueAccount] = 0
 
                         BUY_COIN = Coin[Action] if Action !=len(Coin) else 'CNY'
