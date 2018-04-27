@@ -64,7 +64,7 @@ class Trade():
         #         self.ValueAccount = len(Coin)
         #         names['QTY%s' % self.ValueAccount] = Cny / Get_Data._USDT_CNY
 
-        agent = DQN(self_print=False)
+        agent = DQN(self_print=True)
 
         Get_Data.GetData_Now()
         scaler = preprocessing.StandardScaler()
@@ -99,9 +99,9 @@ class Trade():
 
         # Price = PriceArray[number, action]
         # SellPrice = PriceArray[number, self.ValueAccount]
-        buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['sell'])if action != len(Coin) else 1
+        buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy'])if action != len(Coin) else 1
         Price = buyprice*Get_Data._USDT_CNY
-        sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['buy'])if self.ValueAccount != len(Coin) else 1
+        sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker']['sell'])if self.ValueAccount != len(Coin) else 1
         SellPrice = sellprice*Get_Data._USDT_CNY
 
         if self.Trade_Sign_Pre == 0:
@@ -192,7 +192,7 @@ class Trade():
                     # #     else:
                     # #         print('Buy Complete')
                     # #         break
-                    
+
                     # f = open(Trade_Path, 'r+')
                     # f.read()
                     # f.write('\n%s' % now)
