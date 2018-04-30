@@ -27,7 +27,7 @@ class Okex_Api:
 
     def __init__(self):
         self._Kline={'1min':'1min','3min':'3min','5min':'5min','15min':'15min','30min':'30min','1day':'1day','3day':'3day','1week':'1week','1hour':'1hour','2hour':'2hour','4hour':'4hour','6hour':'6hour','12hour':'12hour'}
-        self._Lenth = 24*100
+        self._Lenth = 24
         self._KlineChosen = '1hour'
         self._Watch_Coin = 'snt'
         while True:
@@ -173,6 +173,7 @@ class Okex_Api:
             print('%s error' % Coin)
 
 def Run(default = True):
+
         Main = Okex_Api()
         try:
             Coin = Main.GetCoin()
@@ -212,25 +213,38 @@ def Run(default = True):
                 DataFrame.iloc[x, columns] = str('%d' %DataFrame.iloc[x, columns] + '%')
         if DataFrame.empty:
             print('没有符合的币种')
+            wechatmsg = '没有符合的币种'
         else:
             print(DataFrame)
+            wechatmsg =DataFrame.to_string()
+            print(wechatmsg)
+
+        now = datetime.datetime.now()
+        now = now.strftime('%Y-%m-%d %H:%M:%S')
+        Wechat.msg(now)
+        Wechat.msg(wechatmsg)
         EndTime = time.time()
         print('Using_Time: %d sec'%int(EndTime - StartTime))
 
 if __name__=='__main__':
 
+    from Class_Wechat import Wechat
+    Wechat = Wechat('Initializing Robot','@@98e2290e631e5dceb8d91aab05775454e78f94640ba3ab2c7e7de23c2840f6b6')
     def job():
         Run(False)
     from apscheduler.schedulers.blocking import BlockingScheduler
     sched = BlockingScheduler()
     while True:
         sched.add_job(job,'cron', minute = 5)
+        # sched.add_job(job, 'interval', seconds=30)
         try:
             sched.start()
         except:
             print('定时任务出错')
             time.sleep(20)
             continue
+    # print(okcoinSpot.ticker('btc_usdt')['ticker']['last'])
+
 
 
 
