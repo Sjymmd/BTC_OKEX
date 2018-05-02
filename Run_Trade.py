@@ -138,19 +138,11 @@ class Trade():
 
                 else:
 
-                    Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
-                    names['QTY%s' % self.ValueAccount] = 0
-
                     BUY_COIN = Coin[action] if action != len(Coin) else 'CNY'
                     SELL_COIN = Coin[self.ValueAccount] if self.ValueAccount != len(Coin) else 'CNY'
 
                     now = datetime.datetime.now()
                     now = now.strftime('%Y-%m-%d %H:%M:%S')
-
-                    print('Time', now, 'Sell %s' % SELL_COIN, 'Buy %s' % BUY_COIN, 'Price', Price)
-                    print('Sell %s' % SELL_COIN, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
-
-                    names['QTY%s' % action] = (Cny / Price) * 0.998
 
                     Trade_api.Get_Coin()
                     Trade_api.Sell(SELL_COIN,sellprice)
@@ -170,9 +162,18 @@ class Trade():
                         else:
                             print('Sell Complete')
                             break
+
                     SellPrice = sellprice * Get_Data._USDT_CNY
+                    Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
+                    names['QTY%s' % self.ValueAccount] = 0
+
                     buyprice = float(okcoinSpot.ticker(Coin[action])['ticker']['buy']) if action != len(Coin) else 1
                     Price = buyprice * Get_Data._USDT_CNY
+
+                    print('Time', now, 'Sell %s' % SELL_COIN, 'Buy %s' % BUY_COIN, 'Price', Price)
+                    print('Sell %s' % SELL_COIN, 'Price', SellPrice, 'Current_Profit', Cny - Initial_Asset)
+
+                    names['QTY%s' % action] = (Cny / Price) * 0.998
                     print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
 
                     Trade_api.Get_Coin()

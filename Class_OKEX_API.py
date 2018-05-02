@@ -217,7 +217,6 @@ def Run(default = True):
         else:
             print(DataFrame)
             wechatmsg =DataFrame.to_string()
-            print(wechatmsg)
 
         now = datetime.datetime.now()
         now = now.strftime('%Y-%m-%d %H:%M:%S')
