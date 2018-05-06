@@ -1,27 +1,35 @@
 #!/use/bin/env python
 #coding=utf-8
 import itchat
-from itchat.content import *
-
-
-@itchat.msg_register(TEXT, isGroupChat=True)
-def text_reply(msg):
-    print(msg)
-    ToUserName = msg['ToUserName']
-    return ToUserName
+# from itchat.content import *
 
 class Wechat():
 
-    def __init__(self,Dataframe,ToUserName):
+    def __init__(self):
         itchat.auto_login(hotReload=True)
-        self.ToUserName = ToUserName
-        itchat.send(Dataframe, ToUserName)
         # itchat.run()
 
-    def msg(self,msg):
-        itchat.send(msg,self.ToUserName)
+    def Get_Chatrooms(self,Name):
+        group = itchat.get_chatrooms(update=True)
+        for g in group:
+            if g['NickName'] == Name:
+                self.from_group = g['UserName']
+
+    def Get_Friends(self,Name):
+        friend = itchat.get_friends(update=True)
+        for f in friend:
+            if f['NickName'] == Name:
+                self.friend = f['UserName']
+
+
+
+    def msg(self,wechatmsg,ToUser):
+        itchat.send(wechatmsg, ToUser)
 
 if __name__ == '__main__':
-    Wechat = Wechat('Test','@@98e2290e631e5dceb8d91aab05775454e78f94640ba3ab2c7e7de23c2840f6b6')
-    Wechat.msg('k')
-    # itchat.send('abc', ToUserName)
+    Wechat = Wechat()
+    # Wechat.Get_Chatrooms('Python')
+    # print(Wechat.from_group)
+    group=Wechat.Get_Chatrooms('PythonGroup')
+    friend=Wechat.Get_Friends('belief.')
+    print(Wechat.from_group,Wechat.friend)
