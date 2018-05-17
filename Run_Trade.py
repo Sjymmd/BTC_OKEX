@@ -155,10 +155,10 @@ class Trade():
                     now = datetime.datetime.now()
                     now = now.strftime('%Y-%m-%d %H:%M:%S')
 
-                    Trade_api.Get_Coin()
-                    Trade_api.Sell(SELL_COIN,sellprice)
 
                     ##Trade
+                    # Trade_api.Get_Coin()
+                    # Trade_api.Sell(SELL_COIN,sellprice)
                     # while True:
                     #
                     #     time.sleep(10)
@@ -190,7 +190,7 @@ class Trade():
                     names['QTY%s' % action] = (Cny / Price) * 0.998
                     print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
 
-                    # Trade
+                    ## Trade
                     # Trade_api.Get_Coin()
                     # Trade_api.Buy(BUY_COIN,buyprice)
                     ##Trade
@@ -295,8 +295,8 @@ if __name__ == '__main__':
 
     while True:
 
-        # sched.add_job(job, 'interval', seconds=30)
-        sched.add_job(job, 'cron', minute=1)
+        sched.add_job(job, 'interval', hours=4)
+        # sched.add_job(job, 'cron', minute=1)
 
         try:
             sched.start()

@@ -28,7 +28,7 @@ class Okex_Api:
     def __init__(self):
         self._Kline={'1min':'1min','3min':'3min','5min':'5min','15min':'15min','30min':'30min','1day':'1day','3day':'3day','1week':'1week','1hour':'1hour','2hour':'2hour','4hour':'4hour','6hour':'6hour','12hour':'12hour'}
         self._Lenth = 24
-        self._KlineChosen = '1hour'
+        self._KlineChosen = '4hour'
         self._Watch_Coin = 'snt'
         while True:
             try:
@@ -225,6 +225,9 @@ def Run(default = True):
         EndTime = time.time()
         print('Using_Time: %d sec'%int(EndTime - StartTime))
 
+
+
+
 if __name__=='__main__':
 
     from Class_Wechat import Wechat
@@ -243,6 +246,10 @@ if __name__=='__main__':
             time.sleep(20)
             continue
     # print(okcoinSpot.ticker('btc_usdt')['ticker']['last'])
+    # Okex_Api = Okex_Api()
+    # Okex_Api._KlineChosen = '4hour'
+    # data = Okex_Api.GetDataCoin('snt_usdt')
+    # print(data)
 
 
 
