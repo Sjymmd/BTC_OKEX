@@ -61,17 +61,36 @@ class Get_Data():
         return Data,PriceArray
 
     def GetData_Now(self):
+        import pickle
 
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+        # Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+        # PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+        try:
+            with open('./Data/Data.pickle', 'rb') as myfile:
+                Data = pickle.load(myfile)
+            with open('./Data/PriceArray.pickle', 'rb') as myfile:
+                PriceArray = pickle.load(myfile)
+        except:
+
+            Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+            PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+            print('Create Pickle')
+
         Data_Insert, PriceArray_Insert = Get_Data.GetData(self)
         Data =np.vstack((Data,Data_Insert[-1,:]))
         PriceArray = np.vstack((PriceArray,PriceArray_Insert[-1,:]))
-        np.savetxt('./Data/PriceArray.csv', PriceArray, delimiter=',')
-        np.savetxt('./Data/Data.csv', Data, delimiter=',')
+
+        # np.savetxt('./Data/PriceArray.csv', PriceArray, delimiter=',')
+        # np.savetxt('./Data/Data.csv', Data, delimiter=',')
+        with open('./Data/Data.pickle', 'wb') as myfile:
+            pickle.dump(Data, myfile, pickle.HIGHEST_PROTOCOL)
+        with open('./Data/PriceArray.pickle', 'wb') as myfile:
+            pickle.dump(PriceArray, myfile, pickle.HIGHEST_PROTOCOL)
+
         print('Update Data Successfully')
 
 if __name__ == '__main__':
 
     Get_Data = Get_Data()
-    Get_Data.GetData(save=True)
+    # Get_Data.GetData(save=True)
+    Get_Data.GetData_Now()

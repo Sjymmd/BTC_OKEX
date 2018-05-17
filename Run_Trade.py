@@ -3,6 +3,7 @@ from Class_Get_Data import *
 from Class_Trade import *
 from Model_DQN import *
 from keras.models import load_model
+import pickle
 
 warnings.filterwarnings("ignore")
 
@@ -25,6 +26,7 @@ class Trade():
         self.ProfitLoss = 1
         self.skiprows = skiprows
         self.k = k
+
     def main(self):
 
         true = ''
@@ -34,44 +36,53 @@ class Trade():
         now = now.strftime('%Y-%m-%d %H:%M:%S')
         CoinName = Coin[self.ValueAccount] if self.ValueAccount != len(Coin) else 'CNY'
 
-        if Trade_api.Check_FreezedCoin():
-            order_id = eval(okcoinSpot.orderinfo(CoinName, -1))['orders']
-            if order_id:
-                order_id = order_id[0]['order_id']
-                okcoinSpot.cancelOrder(CoinName, order_id)
-                sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
-                                  'buy']) if self.ValueAccount != len(Coin) else 1
-                Trade_api.Sell_Coin()
-                SellPrice = sellprice * Get_Data._USDT_CNY
-                Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
-                names['QTY%s' % self.ValueAccount] = 0
-
-                while True:
-                    if Trade_api.Check_FreezedCoin():
-                        time.sleep(10)
-                    else:
-                        print('Initial_Sell_Compete')
-                        break
-
-                f = open(Trade_Path, 'r+')
-                f.read()
-                f.write('\n%s' % now)
-                f.write('\nSell %s , Price %s, Current_Profit %s' % (
-                    CoinName, SellPrice, Cny - Initial_Asset))
-                f.write('\nBuy %s , Price %s' % ('CNY',Get_Data._USDT_CNY ))
-                f.close()
-
-                self.ValueAccount = len(Coin)
-                names['QTY%s' % self.ValueAccount] = Cny / Get_Data._USDT_CNY
+        ##Trade
+        # if Trade_api.Check_FreezedCoin():
+        #     order_id = eval(okcoinSpot.orderinfo(CoinName, -1))['orders']
+        #     if order_id:
+        #         order_id = order_id[0]['order_id']
+        #         okcoinSpot.cancelOrder(CoinName, order_id)
+        #         sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
+        #                           'buy']) if self.ValueAccount != len(Coin) else 1
+        #         Trade_api.Sell_Coin()
+        #         SellPrice = sellprice * Get_Data._USDT_CNY
+        #         Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
+        #         names['QTY%s' % self.ValueAccount] = 0
+        #
+        #         while True:
+        #             if Trade_api.Check_FreezedCoin():
+        #                 time.sleep(10)
+        #             else:
+        #                 print('Initial_Sell_Compete')
+        #                 break
+        #
+        #         f = open(Trade_Path, 'r+')
+        #         f.read()
+        #         f.write('\n%s' % now)
+        #         f.write('\nSell %s , Price %s, Current_Profit %s' % (
+        #             CoinName, SellPrice, Cny - Initial_Asset))
+        #         f.write('\nBuy %s , Price %s' % ('CNY',Get_Data._USDT_CNY ))
+        #         f.close()
+        #
+        #         self.ValueAccount = len(Coin)
+        #         names['QTY%s' % self.ValueAccount] = Cny / Get_Data._USDT_CNY
+        ##Trade
 
         agent = DQN(self_print=True)
 
         Get_Data.GetData_Now()
         scaler = preprocessing.StandardScaler()
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows:,:]
-        Data = scaler.fit_transform(Data)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows:,:]
 
+        with open('./Data/Data.pickle', 'rb') as myfile:
+            Data = pickle.load(myfile)
+        Data = Data[-self.skiprows:,:]
+        # Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows:,:]
+        Data = scaler.fit_transform(Data)
+
+        # PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows:,:]
+        with open('./Data/PriceArray.pickle', 'rb') as myfile:
+            PriceArray = pickle.load(myfile)
+        PriceArray = PriceArray[-self.skiprows:,:]
         number = -1
         state = Data[number,:]
         action = agent.action(state)
@@ -147,21 +158,24 @@ class Trade():
                     Trade_api.Get_Coin()
                     Trade_api.Sell(SELL_COIN,sellprice)
 
-                    while True:
+                    ##Trade
+                    # while True:
+                    #
+                    #     time.sleep(10)
+                    #     if Trade_api.Check_FreezedCoin():
+                    #         FreezeCoin = Trade_api.Check_FreezedCoin()[0]
+                    #         order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders']
+                    #         if order_id:
+                    #             order_id = order_id[0]['order_id']
+                    #             okcoinSpot.cancelOrder(FreezeCoin, order_id)
+                    #             sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
+                    #                               'buy']) if self.ValueAccount != len(Coin) else 1
+                    #             Trade_api.Sell(SELL_COIN, sellprice)
+                    #     else:
+                    #         print('Sell Complete')
+                    #         break
+                    ##Trade
 
-                        time.sleep(10)
-                        if Trade_api.Check_FreezedCoin():
-                            FreezeCoin = Trade_api.Check_FreezedCoin()[0]
-                            order_id = eval(okcoinSpot.orderinfo(FreezeCoin, -1))['orders']
-                            if order_id:
-                                order_id = order_id[0]['order_id']
-                                okcoinSpot.cancelOrder(FreezeCoin, order_id)
-                                sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
-                                                  'buy']) if self.ValueAccount != len(Coin) else 1
-                                Trade_api.Sell(SELL_COIN, sellprice)
-                        else:
-                            print('Sell Complete')
-                            break
 
                     SellPrice = sellprice * Get_Data._USDT_CNY
                     Cny = names['QTY%s' % self.ValueAccount] * SellPrice * 0.998
@@ -176,8 +190,10 @@ class Trade():
                     names['QTY%s' % action] = (Cny / Price) * 0.998
                     print('Buy %s' % BUY_COIN, 'Price', Price, 'Time', now)
 
-                    Trade_api.Get_Coin()
-                    Trade_api.Buy(BUY_COIN,buyprice)
+                    # Trade
+                    # Trade_api.Get_Coin()
+                    # Trade_api.Buy(BUY_COIN,buyprice)
+                    ##Trade
 
                     #while True:
                     #     time.sleep(10)
@@ -193,6 +209,7 @@ class Trade():
                     #     else:
                     #         print('Buy Complete')
                     #         break
+
 
                     f = open(Trade_Path, 'r+')
                     f.read()

@@ -168,11 +168,11 @@ def Run(default=True):
     for name in Wechat_Push:
 
         if DataFrame.empty:
-            print('没有符合的币种')
+            # print('没有符合的币种')
             wechatmsg = '没有符合的币种'
             Wechat.msg(wechatmsg, name)
         else:
-            print(DataFrame)
+            # print(DataFrame)
             now = datetime.datetime.now()
             # now = now.strftime('%Y-%m-%d %H:%M:%S')
             for x in range(0, 2):
@@ -182,6 +182,7 @@ def Run(default=True):
             Wechat.msg(wechatmsg, name)
         time.sleep(5)
 
+    print(DataFrame if not DataFrame.empty else '没有符合的币种')
     EndTime = time.time()
     print('Using_Time: %d sec' % int(EndTime - StartTime))
 
