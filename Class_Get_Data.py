@@ -12,7 +12,7 @@ class Get_Data():
     def GetData(self,save = False):
 
         print('Start Loading Data...')
-
+        Okex_Api._Lenth = 723
         StartTime = time.time()
         Coin = self.Coin
         DataLen =[]
@@ -53,10 +53,17 @@ class Get_Data():
         PriceArray = np.column_stack((PriceArray,Cny_Price))
 
         if save is True:
-            np.savetxt('./Data/PriceArray.csv', PriceArray, delimiter=',')
-            np.savetxt('./Data/Data.csv',Data,  delimiter=',')
+            import pickle
+            # np.savetxt('./Data/PriceArray.csv', PriceArray, delimiter=',')
+            # np.savetxt('./Data/Data.csv',Data,  delimiter=',')
+            with open('./Data/Data.pickle', 'wb') as myfile:
+                pickle.dump(Data, myfile, pickle.HIGHEST_PROTOCOL)
+            with open('./Data/PriceArray.pickle', 'wb') as myfile:
+                pickle.dump(PriceArray, myfile, pickle.HIGHEST_PROTOCOL)
+
             print('Saved Data Successfully')
 
+        Okex_Api._Lenth = 24*10
         print('Loading Data Using_Time: %d min' % int((time.time() - StartTime) / 60))
         return Data,PriceArray
 

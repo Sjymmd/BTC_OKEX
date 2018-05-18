@@ -2,6 +2,7 @@
 from sklearn import preprocessing
 from Model_DQN import *
 import warnings
+import pickle
 warnings.filterwarnings("ignore")
 
 Coin = np.loadtxt("./Log/Coin_Select.txt",dtype=np.str)
@@ -10,9 +11,13 @@ TEST = 1
 
 def Main():
 
-    Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+    # Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+    with open('./Data/Data.pickle', 'rb') as myfile:
+        Data = pickle.load(myfile)
     Data = scaler.fit_transform(Data)
-    PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+    # PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+    with open('./Data/PriceArray.pickle', 'rb') as myfile:
+        PriceArray = pickle.load(myfile)
 
     lenth = int(Data.shape[0] * 5 / 6)
     STEP = lenth - 1
@@ -106,9 +111,13 @@ def Main():
         # tf.summary.merge_all()
         # tf.summary.FileWriter('./Log')
 
-            Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+            # Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)
+            with open('./Data/Data.pickle', 'rb') as myfile:
+                Data = pickle.load(myfile)
             Data = scaler.fit_transform(Data)
-            PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+            # PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)
+            with open('./Data/PriceArray.pickle', 'rb') as myfile:
+                PriceArray = pickle.load(myfile)
             lenth = int(Data.shape[0] * 5 / 6)
             STEP = lenth - 1
             my_train = Data[:lenth]
