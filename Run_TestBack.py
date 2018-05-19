@@ -44,11 +44,19 @@ class TestBack():
 
     def GetData_DQN(self):
 
+        import pickle
         scaler = preprocessing.StandardScaler()
         # print(self.skiprows)
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows-self.lenth:-self.skiprows,:]
+        # Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows-self.lenth:-self.skiprows,:]
+        with open('./Data/Data.pickle', 'rb') as myfile:
+            Data = pickle.load(myfile)
+        Data = Data[-self.skiprows - self.lenth:-self.skiprows, :]
         Data = scaler.fit_transform(Data)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows-self.lenth:-self.skiprows,:]
+
+        # PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[-self.skiprows-self.lenth:-self.skiprows,:]
+        with open('./Data/PriceArray.pickle', 'rb') as myfile:
+            PriceArray = pickle.load(myfile)
+        PriceArray = PriceArray[-self.skiprows - self.lenth:-self.skiprows, :]
 
         DQN_Data = pd.DataFrame()
         agent = DQN()
@@ -84,14 +92,22 @@ class TestBack():
     def GetData_DDQN(self):
 
         from Train_DQN_Keras import DQNAgent
-
+        import pickle
         scaler = preprocessing.StandardScaler()
+
+        with open('./Data/Data.pickle', 'rb') as myfile:
+            Data = pickle.load(myfile)
+        Data =Data[-self.skiprows - self.lenth:-self.skiprows, :]
+
         # print(self.skiprows)
-        Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[
-               -self.skiprows - self.lenth:-self.skiprows, :]
+        # Data = np.loadtxt(open("./Data/Data.csv", "rb"), delimiter=",", skiprows=0)[
+        #        -self.skiprows - self.lenth:-self.skiprows, :]
         Data = scaler.fit_transform(Data)
-        PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[
-                     -self.skiprows - self.lenth:-self.skiprows, :]
+        with open('./Data/PriceArray.pickle', 'rb') as myfile:
+            PriceArray = pickle.load(myfile)
+        PriceArray = PriceArray[-self.skiprows - self.lenth:-self.skiprows, :]
+        # PriceArray = np.loadtxt(open("./Data/PriceArray.csv", "rb"), delimiter=",", skiprows=0)[
+        #              -self.skiprows - self.lenth:-self.skiprows, :]
 
         state_size = int(len(np.loadtxt("./Log/Coin_Select.txt", dtype=np.str)) * 9)
         action_size = int(state_size / 9 + 1)
