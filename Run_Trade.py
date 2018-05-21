@@ -170,6 +170,7 @@ class Trade():
                                 okcoinSpot.cancelOrder(FreezeCoin, order_id)
                                 sellprice = float(okcoinSpot.ticker(Coin[self.ValueAccount])['ticker'][
                                                   'buy']) if self.ValueAccount != len(Coin) else 1
+                                Trade_api.Get_Coin()
                                 Trade_api.Sell(SELL_COIN, sellprice)
                         else:
                             print('Sell Complete')
