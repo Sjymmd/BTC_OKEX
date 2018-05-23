@@ -21,7 +21,8 @@ def Main():
 
     lenth = int(Data.shape[0] * 5 / 6)
     STEP = lenth - 1
-    my_train = Data[:lenth]
+    # my_train = Data[:lenth]
+    my_train = Data
     my_test = Data[lenth:]
 
     env = TWStock(my_train)
@@ -120,7 +121,8 @@ def Main():
                 PriceArray = pickle.load(myfile)
             lenth = int(Data.shape[0] * 5 / 6)
             STEP = lenth - 1
-            my_train = Data[:lenth]
+            # my_train = Data[:lenth]
+            my_train = Data
             my_test = Data[lenth:]
             env.stock_data = my_train
             agent.saver.save(agent.session, './DQN_Model/' + 'network' + '-dqn', global_step=agent.time_step)
